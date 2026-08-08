@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>المحادثة — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="has-action-bar">
+
+<header class="subheader">
+  <div class="subheader-inner">
+    <button class="icon-btn" onclick="location.href='messages.html'" aria-label="رجوع">→</button>
+    <span class="avatar avatar-sm" id="avatar">م</span>
+    <div class="grow">
+      <div class="bold" style="font-size:14.5px" id="peerName">محمد</div>
+      <div class="muted txt-sm" style="font-size:11px">🟢 متصل الآن</div>
+    </div>
+    <a class="icon-btn" href="tel:0994123456" aria-label="اتصال">☎️</a>
+    <button class="icon-btn" data-open-sheet="moreSheet" aria-label="خيارات">⋮</button>
+  </div>
+</header>
+
+<!-- الإعلان محل المحادثة -->
+<a class="chat-ad" id="adBar" href="listing.html?id=1">
+  <img id="adImg" src="" alt="">
+  <div class="grow">
+    <div class="chat-ad-title" id="adTitle">—</div>
+    <div class="chat-ad-price" id="adPrice">—</div>
+  </div>
+  <span class="muted">‹</span>
+</a>
+
+<main class="chat-body" id="chat"></main>
+
+<div class="quick-replies">
+  <button class="chip" onclick="quick(this)">هل ما زال متوفرًا؟</button>
+  <button class="chip" onclick="quick(this)">آخر سعر؟</button>
+  <button class="chip" onclick="quick(this)">وين المعاينة؟</button>
+  <button class="chip" onclick="quick(this)">ممكن صور إضافية؟</button>
+</div>
+
+<div class="chat-input-bar">
+  <div class="chat-input-inner">
+    <button class="icon-btn" onclick="toast('📎 إرفاق صورة')" aria-label="إرفاق">📎</button>
+    <input class="input" id="msg" placeholder="اكتب رسالة…" autocomplete="off">
+    <button class="chat-send" onclick="send()" aria-label="إرسال">➤</button>
+  </div>
+</div>
+
+<!-- ===== نافذة الخيارات ===== -->
+<div class="sheet" id="moreSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">خيارات المحادثة</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="opt-list">
+      <button class="opt" onclick="closeSheet();toast('📦 فتح الإعلان')">📦 عرض الإعلان</button>
+      <button class="opt" onclick="closeSheet();toast('🔕 كُتم الإشعارات')">🔕 كتم الإشعارات</button>
+      <button class="opt danger" onclick="closeSheet();toast('🚫 تم حظر المستخدم')">🚫 حظر المستخدم</button>
+      <button class="opt danger" onclick="closeSheet();openSheet('reportUserSheet')">🚩 الإبلاغ عن المستخدم</button>
+      <button class="opt danger" onclick="closeSheet();toast('🗑️ حُذفت المحادثة')">🗑️ حذف المحادثة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== نافذة الإبلاغ عن المستخدم ===== -->
+<div class="sheet" id="reportUserSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">🚩 الإبلاغ عن المستخدم</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="opt-list" id="reasons"></div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" data-close-sheet>إلغاء</button>
+    <button class="btn btn-danger" onclick="closeSheet();toast('🚩 وصل البلاغ للإدارة')">إرسال البلاغ</button>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const cid = Number(param('id', 1));
+  const conv = CONVERSATIONS.find(c => c.id === cid) || CONVERSATIONS[0];
+  const ad = LISTINGS.find(a => a.id === conv.listingId) || LISTINGS[0];
+
+  peerName.textContent = conv.name;
+  avatar.textContent = conv.name.charAt(0);
+  adImg.src = ad.img;
+  adTitle.textContent = ad.title;
+  adPrice.innerHTML = money(ad.price, ad.currency);
+  adBar.href = 'listing.html?id=' + ad.id;
+
+  function bubble(m) {
+    if (m.day) return `<div class="msg-day">${m.day}</div>`;
+    return `<div class="msg ${m.dir}">
+      <div class="msg-bubble">${m.text}</div>
+      <div class="msg-time">${m.time}${m.dir === 'out' ? ' ✓✓' : ''}</div>
+    </div>`;
+  }
+  chat.innerHTML = MESSAGES.map(bubble).join('');
+  window.scrollTo(0, document.body.scrollHeight);
+
+  function send() {
+    const v = msg.value.trim();
+    if (!v) return;
+    const t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    chat.insertAdjacentHTML('beforeend', bubble({ dir: 'out', text: v, time: t }));
+    msg.value = '';
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    setTimeout(() => {
+      chat.insertAdjacentHTML('beforeend', bubble({ dir: 'in', text: 'تمام، أنا موجود بالمحل من الساعة 10 صباحًا.', time: t }));
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 1100);
+  }
+  msg.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+  function quick(b) { msg.value = b.textContent; send(); }
+
+  reasons.innerHTML = REPORT_REASONS.map(r =>
+    `<button class="opt"><span class="opt-radio"></span>${r.icon} ${r.label}</button>`).join('');
+  document.querySelectorAll('#reasons .opt').forEach(o =>
+    o.addEventListener('click', () => {
+      document.querySelectorAll('#reasons .opt').forEach(x => x.classList.remove('is-sel'));
+      o.classList.add('is-sel');
+    }));
+</script>
+</body>
+</html>

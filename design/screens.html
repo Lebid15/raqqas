@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>كل الشاشات — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="padding-bottom:30px">
+
+<header class="header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">س</span>
+      <span class="brand-text">
+        <span class="brand-name">سوق الرقة</span>
+        <span class="brand-sub">نموذج التصميم — كل الشاشات</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="المظهر">🌓</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="notice notice-info mt-16">
+    <span class="n-icon">👋</span>
+    <div>
+      هذه صفحة فهرس لكل شاشات النموذج الأوّلي. افتح أي شاشة وتصفّحها كما لو كانت التطبيق الحقيقي.
+      <br><b>جرّبها على جوالك أيضًا</b> — التصميم متجاوب بالكامل.
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">📱 شاشات المستخدم</h2></div>
+    <div class="stack-sm" id="userScreens"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">👨‍💼 لوحة الإدارة</h2></div>
+    <div class="stack-sm" id="adminScreens"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">🎨 الهوية البصرية</h2></div>
+    <div class="card">
+      <h3 class="card-title">الألوان</h3>
+      <div class="flex wrap" style="gap:10px">
+        <div style="text-align:center"><div style="width:64px;height:52px;border-radius:10px;background:#0B7A5D"></div><div class="txt-sm bold mt-8">الأساسي</div><div class="txt-sm muted ltr">#0B7A5D</div></div>
+        <div style="text-align:center"><div style="width:64px;height:52px;border-radius:10px;background:#E8940C"></div><div class="txt-sm bold mt-8">المميّز</div><div class="txt-sm muted ltr">#E8940C</div></div>
+        <div style="text-align:center"><div style="width:64px;height:52px;border-radius:10px;background:#15803D"></div><div class="txt-sm bold mt-8">موافقة</div><div class="txt-sm muted ltr">#15803D</div></div>
+        <div style="text-align:center"><div style="width:64px;height:52px;border-radius:10px;background:#DC2626"></div><div class="txt-sm bold mt-8">رفض/بلاغ</div><div class="txt-sm muted ltr">#DC2626</div></div>
+        <div style="text-align:center"><div style="width:64px;height:52px;border-radius:10px;background:#111C18"></div><div class="txt-sm bold mt-8">النص</div><div class="txt-sm muted ltr">#111C18</div></div>
+      </div>
+      <div class="hint">الأخضر = ثقة وسوق. الذهبي = التمييز المدفوع. كلاهما يعمل في الوضعين النهاري والليلي.</div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">الخط</h3>
+      <div style="font-size:26px;font-weight:900">سوق الرقة — Cairo Black</div>
+      <div style="font-size:18px;font-weight:700">عنوان فرعي — Cairo Bold</div>
+      <div style="font-size:15px">نص عادي للقراءة — Cairo Regular</div>
+      <div class="hint">خط Cairo مصمّم للعربية ويقرأ بوضوح على الشاشات الصغيرة.</div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">الأزرار والحالات</h3>
+      <div class="flex wrap" style="gap:8px">
+        <button class="btn btn-primary btn-sm">أساسي</button>
+        <button class="btn btn-gold btn-sm">⭐ تمييز</button>
+        <button class="btn btn-success btn-sm">✅ قبول</button>
+        <button class="btn btn-danger btn-sm">❌ رفض</button>
+        <button class="btn btn-ghost btn-sm">ثانوي</button>
+        <button class="btn btn-soft btn-sm">خفيف</button>
+      </div>
+      <div class="flex wrap mt-12" style="gap:8px">
+        <span class="status status-pending">⏳ قيد المراجعة</span>
+        <span class="status status-published">✅ منشور</span>
+        <span class="status status-rejected">❌ مرفوض</span>
+        <span class="status status-reported">🚩 مبلّغ عنه</span>
+        <span class="status status-suspended">🚫 موقوف</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="assets/js/app.js"></script>
+<script>
+  const USER = [
+    ['index.html',      '🏠', 'الرئيسية', 'البحث + الأقسام + المميزة + الأحدث'],
+    ['categories.html', '📂', 'الأقسام', '11 قسمًا مع الأقسام الفرعية'],
+    ['search.html',     '🔎', 'البحث والمرشّحات', 'قسم · سعر · منطقة · حالة · ترتيب'],
+    ['listing.html?id=1','📄', 'صفحة الإعلان', 'معرض صور وفيديو + اتصال/مراسلة/حفظ/إبلاغ'],
+    ['add.html',        '➕', 'أضف إعلان', '3 خطوات · حتى 10 صور + فيديو'],
+    ['messages.html',   '💬', 'الرسائل', 'قائمة المحادثات مع عدّاد غير المقروء'],
+    ['chat.html?id=1',  '🗨️', 'المحادثة', 'رسائل لحظية + حظر + إبلاغ'],
+    ['favorites.html',  '❤️', 'المفضلة', 'الإعلانات المحفوظة'],
+    ['account.html',    '👤', 'حسابي', 'معلوماتي · إعلاناتي · الإشعارات · الإعدادات'],
+    ['auth.html',       '🔐', 'التسجيل والدخول', 'هاتف + رمز واتساب (الرمز التجريبي 1234)']
+  ];
+  const ADMIN = [
+    ['admin.html', '📊', 'نظرة عامة', 'إحصائيات وإجراءات سريعة'],
+    ['admin.html', '📢', 'إدارة الإعلانات', 'قبول · رفض · تعديل · إيقاف · حذف'],
+    ['admin.html', '👥', 'المستخدمون', 'إيقاف · حظر · إعادة تفعيل'],
+    ['admin.html', '🚩', 'البلاغات', '5 أسباب + إجراءات فورية'],
+    ['admin.html', '💰', 'طلبات الدفع', 'تحقق يدوي من الإيصالات'],
+    ['admin.html', '⚙️', 'الإعدادات', 'المراجعة · التحقق · المشرفون']
+  ];
+  const row = ([href, icon, name, sub]) => `
+    <a class="menu-item card" href="${href}" style="border-radius:12px">
+      <span class="menu-icon">${icon}</span>
+      <span class="menu-label">${name}<br><span class="muted txt-sm" style="font-weight:600">${sub}</span></span>
+      <span class="menu-arrow">‹</span>
+    </a>`;
+  userScreens.innerHTML = USER.map(row).join('');
+  adminScreens.innerHTML = ADMIN.map(row).join('');
+</script>
+</body>
+</html>

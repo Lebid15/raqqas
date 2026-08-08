@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>البحث — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ترويسة البحث -->
+<header class="subheader">
+  <div class="subheader-inner">
+    <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
+    <div class="searchbar" style="box-shadow:none;border:1.5px solid var(--line);background:var(--bg)">
+      <span class="sb-icon">🔎</span>
+      <input id="q" type="search" placeholder="ماذا تبحث؟" value="غسالة سامسونغ" autocomplete="off">
+      <button id="clear" aria-label="مسح" style="color:var(--ink-3)">✕</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- عمليات بحث سابقة (تظهر عند التركيز) -->
+  <div id="recent" class="section hidden">
+    <div class="section-head"><h2 class="section-title" style="font-size:14px">🕐 عمليات بحث سابقة</h2>
+      <button class="section-more" onclick="document.getElementById('recent').classList.add('hidden')">مسح</button></div>
+    <div class="chips">
+      <button class="chip">غسالة سامسونغ</button>
+      <button class="chip">كيا ريو</button>
+      <button class="chip">بيت للإيجار</button>
+      <button class="chip">آيفون</button>
+    </div>
+  </div>
+
+  <!-- شريط المرشّحات -->
+  <div class="filter-bar">
+    <button class="btn btn-ghost btn-sm" data-open-sheet="filterSheet">⚙️ المرشّحات <span class="badge badge-featured" id="fcount">2</span></button>
+    <button class="btn btn-ghost btn-sm" data-open-sheet="sortSheet">↕️ <span id="sortLabel">الأحدث</span></button>
+    <div class="grow"></div>
+    <button class="icon-btn" style="border:1px solid var(--line);border-radius:var(--r-sm);width:36px;height:36px" onclick="toggleView()" id="viewBtn" aria-label="تغيير العرض">▦</button>
+  </div>
+
+  <!-- المرشّحات المفعّلة -->
+  <div class="chips" id="active-filters">
+    <button class="chip is-active">🪑 الأثاث والمنزل <span class="c-x">✕</span></button>
+    <button class="chip is-active">📍 الرقة <span class="c-x">✕</span></button>
+  </div>
+
+  <div class="result-count" id="count">١٦ نتيجة</div>
+
+  <div class="ads-grid" id="results"></div>
+
+  <div class="empty hidden" id="empty">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">لا توجد نتائج</div>
+    <div class="empty-text">جرّب كلمات أخرى أو وسّع نطاق البحث</div>
+    <button class="btn btn-soft" onclick="resetSearch()">مسح المرشّحات</button>
+  </div>
+
+  <div class="txt-c mt-16 mb-16">
+    <button class="btn btn-ghost" onclick="toast('جاري تحميل المزيد…')">تحميل المزيد ↓</button>
+  </div>
+</main>
+
+<!-- ===== نافذة المرشّحات ===== -->
+<div class="sheet" id="filterSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">⚙️ المرشّحات</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+
+    <div class="field">
+      <label class="label">القسم</label>
+      <select class="select" id="fCat"><option>كل الأقسام</option></select>
+    </div>
+
+    <div class="field">
+      <label class="label">السعر</label>
+      <div class="row-2">
+        <input class="input" type="number" placeholder="من" inputmode="numeric">
+        <input class="input" type="number" placeholder="إلى" inputmode="numeric">
+      </div>
+      <div class="choice-group mt-8">
+        <label class="choice"><input type="radio" name="cur" checked><span>ل.س</span></label>
+        <label class="choice"><input type="radio" name="cur"><span>دولار $</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">المنطقة</label>
+      <select class="select" id="fArea"><option>كل أحياء الرقة</option></select>
+    </div>
+
+    <div class="field">
+      <label class="label">الحالة</label>
+      <div class="choice-group">
+        <label class="choice"><input type="radio" name="cond" checked><span>الكل</span></label>
+        <label class="choice"><input type="radio" name="cond"><span>🆕 جديد</span></label>
+        <label class="choice"><input type="radio" name="cond"><span>♻️ مستعمل</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label">خيارات</label>
+      <div class="choice-group">
+        <label class="choice"><input type="checkbox"><span>⭐ المميزة فقط</span></label>
+        <label class="choice"><input type="checkbox"><span>📷 مع صور</span></label>
+        <label class="choice"><input type="checkbox"><span>🎬 مع فيديو</span></label>
+      </div>
+    </div>
+
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" onclick="resetSearch()">مسح الكل</button>
+    <button class="btn btn-primary" onclick="closeSheet();toast('✅ تم تطبيق المرشّحات')">عرض ١٦ نتيجة</button>
+  </div>
+</div>
+
+<!-- ===== نافذة الترتيب ===== -->
+<div class="sheet" id="sortSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">↕️ الترتيب</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="opt-list" id="sortList">
+      <button class="opt is-sel" data-sort="الأحدث"><span class="opt-radio"></span>🆕 الأحدث</button>
+      <button class="opt" data-sort="الأرخص"><span class="opt-radio"></span>⬇️ الأرخص سعرًا</button>
+      <button class="opt" data-sort="الأغلى"><span class="opt-radio"></span>⬆️ الأغلى سعرًا</button>
+      <button class="opt" data-sort="الأكثر مشاهدة"><span class="opt-radio"></span>👁 الأكثر مشاهدة</button>
+    </div>
+  </div>
+</div>
+
+<div id="nav"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  document.getElementById('nav').innerHTML = bottomNav('home');
+
+  let results = [...LISTINGS];
+  function render() {
+    const grid = document.getElementById('results');
+    grid.innerHTML = results.map(adCard).join('');
+    document.getElementById('count').textContent = results.length + ' نتيجة';
+    document.getElementById('empty').classList.toggle('hidden', results.length > 0);
+    grid.classList.toggle('hidden', results.length === 0);
+    bindFavs();
+  }
+  render();
+
+  // تعبئة قوائم المرشّحات
+  document.getElementById('fCat').innerHTML =
+    '<option>كل الأقسام</option>' + CATEGORIES.map(c => `<option>${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('fArea').innerHTML =
+    '<option>كل أحياء الرقة</option>' + NEIGHBORHOODS.map(n => `<option>الرقة – ${n}</option>`).join('');
+
+  // الترتيب
+  document.querySelectorAll('#sortList .opt').forEach(o =>
+    o.addEventListener('click', () => {
+      document.querySelectorAll('#sortList .opt').forEach(x => x.classList.remove('is-sel'));
+      o.classList.add('is-sel');
+      document.getElementById('sortLabel').textContent = o.dataset.sort;
+      const s = o.dataset.sort;
+      if (s === 'الأرخص') results.sort((a,b) => (a.price||1e12) - (b.price||1e12));
+      if (s === 'الأغلى') results.sort((a,b) => (b.price||0) - (a.price||0));
+      if (s === 'الأكثر مشاهدة') results.sort((a,b) => b.views - a.views);
+      if (s === 'الأحدث') results = [...LISTINGS];
+      render(); closeSheet();
+      toast('تم الترتيب: ' + s);
+    }));
+
+  // إزالة مرشّح
+  document.querySelectorAll('#active-filters .chip').forEach(c =>
+    c.addEventListener('click', () => {
+      c.remove();
+      const n = document.querySelectorAll('#active-filters .chip').length;
+      document.getElementById('fcount').textContent = n;
+      document.getElementById('fcount').classList.toggle('hidden', n === 0);
+    }));
+
+  // البحث الحيّ (تجريبي)
+  const q = document.getElementById('q');
+  q.addEventListener('focus', () => document.getElementById('recent').classList.remove('hidden'));
+  q.addEventListener('input', () => {
+    const v = q.value.trim();
+    results = v ? LISTINGS.filter(a => (a.title + a.desc + a.catName + a.sub).includes(v)) : [...LISTINGS];
+    render();
+  });
+  document.getElementById('clear').addEventListener('click', () => { q.value = ''; results = [...LISTINGS]; render(); q.focus(); });
+
+  function resetSearch() {
+    q.value = ''; results = [...LISTINGS];
+    document.getElementById('active-filters').innerHTML = '';
+    document.getElementById('fcount').classList.add('hidden');
+    render(); closeSheet(); toast('تم مسح المرشّحات');
+  }
+
+  // تبديل عرض الشبكة / القائمة
+  let listView = false;
+  function toggleView() {
+    listView = !listView;
+    const grid = document.getElementById('results');
+    if (listView) {
+      grid.className = 'stack-sm';
+      grid.innerHTML = results.map(a => adRow(a)).join('');
+      document.getElementById('viewBtn').textContent = '☰';
+    } else {
+      grid.className = 'ads-grid';
+      grid.innerHTML = results.map(adCard).join('');
+      document.getElementById('viewBtn').textContent = '▦';
+    }
+    bindFavs();
+  }
+</script>
+</body>
+</html>

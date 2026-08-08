@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>تفاصيل الإعلان — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="has-action-bar">
+
+<header class="subheader">
+  <div class="subheader-inner">
+    <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
+    <h1 class="subheader-title">تفاصيل الإعلان</h1>
+    <button class="icon-btn" onclick="shareAd()" aria-label="مشاركة">📤</button>
+    <button class="icon-btn" data-open-sheet="reportSheet" aria-label="إبلاغ">🚩</button>
+  </div>
+</header>
+
+<main class="container" style="padding-inline:0">
+  <div class="listing-layout">
+
+    <!-- العمود الأول -->
+    <div>
+      <!-- معرض الصور -->
+      <div class="gallery">
+        <div class="gallery-track" id="gallery"></div>
+        <span class="gallery-video-flag" id="videoFlag">🎬 يوجد فيديو</span>
+        <span class="gallery-counter"><span id="gIndex">1</span> / <span id="gTotal">8</span></span>
+      </div>
+
+      <div class="container" style="padding-top:14px">
+        <!-- العنوان والسعر -->
+        <div class="mb-12">
+          <div class="listing-price" id="price"></div>
+          <h2 class="listing-title" id="title"></h2>
+          <div class="listing-meta">
+            <span id="area">📍</span>
+            <span id="time">🕐</span>
+            <span id="views">👁</span>
+          </div>
+        </div>
+
+        <!-- المواصفات -->
+        <div class="spec-list mb-16" id="specs"></div>
+
+        <!-- الوصف -->
+        <div class="card">
+          <h3 class="card-title">📝 الوصف</h3>
+          <p class="desc-text" id="desc"></p>
+        </div>
+
+        <!-- تنبيه أمان -->
+        <div class="notice notice-warn mt-12">
+          <span class="n-icon">🛡️</span>
+          <div>
+            <b>نصيحة للأمان:</b> عاين المنتج بنفسك قبل الدفع، والتقِ البائع في مكان عام.
+            لا تحوّل أي مبلغ مقدّمًا. سوق الرقة وسيط عرض فقط ولا يضمن المعاملات.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- العمود الثاني (البائع + الإجراءات) -->
+    <aside class="container listing-side" style="padding-top:14px">
+      <div class="card">
+        <h3 class="card-title">👤 البائع</h3>
+        <div class="seller">
+          <div class="avatar" id="avatar">أ</div>
+          <div class="grow">
+            <div class="seller-name"><span id="sellerName"></span><span class="verified" id="vBadge" title="رقم موثّق">✔️</span></div>
+            <div class="seller-sub" id="sellerSub"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="toast('صفحة إعلانات البائع')">إعلاناته</button>
+        </div>
+        <div class="mt-12 stack-sm">
+          <a class="btn btn-primary btn-block" id="callBtn" href="tel:0994123456">☎️ اتصال — <span id="phone" class="ltr"></span></a>
+          <a class="btn btn-soft btn-block" href="chat.html">💬 مراسلة داخل التطبيق</a>
+          <a class="btn btn-ghost btn-block" href="#" onclick="shareAd();return false">🟢 مشاركة على واتساب</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="flex-between">
+          <span class="txt-sm muted">رقم الإعلان</span>
+          <span class="bold txt-sm ltr" id="adId">#1</span>
+        </div>
+        <div class="flex-between mt-8">
+          <span class="txt-sm muted">القسم</span>
+          <a class="bold txt-sm brand-c" id="catLink" href="categories.html">—</a>
+        </div>
+        <div class="flex-between mt-8">
+          <span class="txt-sm muted">ينتهي بعد</span>
+          <span class="bold txt-sm">27 يومًا</span>
+        </div>
+        <button class="btn btn-ghost btn-block btn-sm mt-12" data-open-sheet="reportSheet">🚩 الإبلاغ عن هذا الإعلان</button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- إعلانات مشابهة -->
+  <div class="container section">
+    <div class="section-head"><h2 class="section-title">🔎 إعلانات مشابهة</h2></div>
+    <div class="hscroll" id="similar"></div>
+  </div>
+</main>
+
+<!-- شريط الإجراءات السفلي -->
+<div class="action-bar">
+  <div class="action-bar-inner">
+    <a class="btn btn-primary" id="callBtn2" href="tel:0994123456">☎️ اتصال</a>
+    <a class="btn btn-soft" href="chat.html">💬 مراسلة</a>
+    <button class="icon-btn" id="favBtn" aria-label="حفظ">❤</button>
+    <button class="icon-btn" data-open-sheet="reportSheet" aria-label="إبلاغ">🚩</button>
+  </div>
+</div>
+
+<!-- ===== نافذة الإبلاغ ===== -->
+<div class="sheet" id="reportSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">🚩 الإبلاغ عن الإعلان</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <p class="muted txt-sm mb-12">اختر سبب البلاغ — يصل البلاغ مباشرة إلى إدارة سوق الرقة للمراجعة.</p>
+    <div class="opt-list" id="reasons"></div>
+    <div class="field mt-16 hidden" id="noteField">
+      <label class="label">تفاصيل إضافية <span class="opt">(اختياري)</span></label>
+      <textarea class="textarea" placeholder="اشرح المشكلة باختصار…"></textarea>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" data-close-sheet>إلغاء</button>
+    <button class="btn btn-danger" onclick="closeSheet();toast('🚩 تم إرسال البلاغ — شكرًا لك')">إرسال البلاغ</button>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const id = Number(param('id', 1));
+  const ad = LISTINGS.find(a => a.id === id) || LISTINGS[0];
+
+  // تعبئة البيانات
+  document.title = ad.title + ' — سوق الرقة';
+  price.innerHTML = money(ad.price, ad.currency);
+  title.textContent = ad.title;
+  area.textContent = '📍 الرقة – ' + ad.area;
+  time.textContent = '🕐 ' + ad.time;
+  views.textContent = '👁 ' + ad.views + ' مشاهدة';
+  desc.textContent = ad.desc;
+  sellerName.textContent = ad.seller;
+  sellerSub.textContent = ad.sellerJoined + ' · ' + ad.sellerAds + ' إعلانات';
+  avatar.textContent = ad.seller.charAt(0);
+  phone.textContent = ad.sellerPhone;
+  adId.textContent = '#' + String(ad.id).padStart(5, '0');
+  catLink.textContent = ad.catName;
+  catLink.href = 'search.html?cat=' + ad.cat;
+  if (!ad.verified) vBadge.classList.add('hidden');
+  if (!ad.video) videoFlag.classList.add('hidden');
+  const tel = 'tel:' + ad.sellerPhone.replace(/\s/g, '');
+  callBtn.href = tel; callBtn2.href = tel;
+
+  // المعرض
+  const n = ad.photos;
+  gTotal.textContent = n;
+  gallery.innerHTML = Array.from({ length: n }, (_, i) =>
+    `<div><img src="${ad.img}" alt="صورة ${i+1} من ${ad.title}"></div>`).join('')
+    + (ad.video ? `<div style="position:relative"><img src="${ad.img}" alt="فيديو"><span class="gallery-play">▶️</span></div>` : '');
+  if (ad.video) gTotal.textContent = n + 1;
+
+  gallery.addEventListener('scroll', () => {
+    // في RTL قد تكون scrollLeft سالبة حسب المتصفح — نأخذ القيمة المطلقة
+    const i = Math.round(Math.abs(gallery.scrollLeft) / gallery.clientWidth) + 1;
+    gIndex.textContent = Math.min(Math.max(i, 1), Number(gTotal.textContent));
+  });
+
+  // المواصفات
+  specs.innerHTML = [
+    ['الحالة', ad.condition === 'new' ? '🆕 جديد' : '♻️ مستعمل'],
+    ['القسم', ad.sub],
+    ['المنطقة', 'الرقة – ' + ad.area],
+    ['نُشر', ad.time],
+    ['المشاهدات', ad.views],
+    ['رقم الإعلان', '#' + String(ad.id).padStart(5, '0')]
+  ].map(([k, v]) => `<div class="spec"><div class="spec-k">${k}</div><div class="spec-v">${v}</div></div>`).join('');
+
+  // أسباب الإبلاغ
+  reasons.innerHTML = REPORT_REASONS.map(r =>
+    `<button class="opt" data-r="${r.id}"><span class="opt-radio"></span>${r.icon} ${r.label}</button>`).join('');
+  document.querySelectorAll('#reasons .opt').forEach(o =>
+    o.addEventListener('click', () => {
+      document.querySelectorAll('#reasons .opt').forEach(x => x.classList.remove('is-sel'));
+      o.classList.add('is-sel');
+      noteField.classList.toggle('hidden', o.dataset.r !== 'other');
+    }));
+
+  // المفضلة
+  if (Fav.has(ad.id)) favBtn.classList.add('is-on');
+  favBtn.addEventListener('click', () => {
+    const added = Fav.toggle(ad.id);
+    favBtn.classList.toggle('is-on', added);
+    toast(added ? '❤️ تم الحفظ في المفضلة' : 'أُزيل من المفضلة');
+  });
+
+  // مشاركة واتساب
+  function shareAd() {
+    const txt = `${ad.title}\n${ad.price ? ad.price.toLocaleString('en-US') + (ad.currency === 'USD' ? ' $' : ' ل.س') : 'على السوم'}\nالرقة – ${ad.area}\nعبر سوق الرقة`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+  }
+
+  // إعلانات مشابهة
+  similar.innerHTML = LISTINGS.filter(a => a.cat === ad.cat && a.id !== ad.id).slice(0, 6).map(adCard).join('')
+    || LISTINGS.filter(a => a.id !== ad.id).slice(0, 6).map(adCard).join('');
+  bindFavs();
+</script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>أضف إعلان — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="subheader">
+  <div class="subheader-inner">
+    <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
+    <h1 class="subheader-title">➕ أضف إعلان</h1>
+    <button class="btn btn-ghost btn-sm" onclick="toast('💾 حُفظ كمسودّة')">حفظ مسودّة</button>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- خطوة 1: اختيار القسم -->
+  <section id="step1" class="section">
+    <h2 class="section-title mb-12">1️⃣ اختر القسم</h2>
+    <div class="cat-grid" id="cats"></div>
+  </section>
+
+  <!-- خطوة 2: القسم الفرعي -->
+  <section id="step2" class="section hidden">
+    <div class="flex-between mb-12">
+      <h2 class="section-title">2️⃣ اختر القسم الفرعي</h2>
+      <button class="btn btn-ghost btn-sm" onclick="backToStep1()">تغيير القسم</button>
+    </div>
+    <div class="card flex" style="gap:10px">
+      <span class="cat-emoji" id="pickIcon">📦</span>
+      <span class="bold" id="pickName">—</span>
+    </div>
+    <div class="chips wrap mt-12" id="subs" style="flex-wrap:wrap;overflow:visible"></div>
+  </section>
+
+  <!-- خطوة 3: التفاصيل -->
+  <section id="step3" class="section hidden">
+    <div class="flex-between mb-12">
+      <h2 class="section-title">3️⃣ تفاصيل الإعلان</h2>
+      <button class="btn btn-ghost btn-sm" onclick="backToStep2()">رجوع</button>
+    </div>
+
+    <div class="card mb-12 flex" style="gap:10px">
+      <span class="cat-emoji" id="pickIcon2">📦</span>
+      <div class="grow">
+        <div class="bold txt-sm" id="pickName2">—</div>
+        <div class="muted txt-sm" id="pickSub">—</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="backToStep1()">تغيير</button>
+    </div>
+
+    <!-- الصور -->
+    <div class="field">
+      <label class="label">📷 الصور <span class="req">*</span> <span class="opt">حتى 10 صور + فيديو</span></label>
+      <div class="uploader" id="uploader"></div>
+      <div class="hint">الصورة الأولى هي الصورة الرئيسية. الإعلانات المصوّرة تبيع أسرع بـ 3 أضعاف. تُضغط الصور تلقائيًا لتناسب الإنترنت الضعيف.</div>
+    </div>
+
+    <!-- العنوان -->
+    <div class="field">
+      <label class="label">عنوان الإعلان <span class="req">*</span></label>
+      <input class="input" id="title" maxlength="70" placeholder="مثال: iPhone 15 Pro — 256 جيجا — بحالة ممتازة">
+      <div class="hint"><span id="tlen">0</span>/70 حرف — اكتب عنوانًا واضحًا يشمل الاسم والموديل</div>
+    </div>
+
+    <!-- الحالة -->
+    <div class="field">
+      <label class="label">حالة المنتج <span class="req">*</span></label>
+      <div class="choice-group">
+        <label class="choice"><input type="radio" name="cond" checked><span>🆕 جديد</span></label>
+        <label class="choice"><input type="radio" name="cond"><span>♻️ مستعمل</span></label>
+      </div>
+    </div>
+
+    <!-- الوصف -->
+    <div class="field">
+      <label class="label">الوصف <span class="req">*</span></label>
+      <textarea class="textarea" id="desc" maxlength="1500" placeholder="اكتب تفاصيل المنتج وحالته…&#10;• الموديل والمواصفات&#10;• مدة الاستعمال&#10;• سبب البيع&#10;• هل السعر قابل للتفاوض؟"></textarea>
+      <div class="hint"><span id="dlen">0</span>/1500 حرف</div>
+    </div>
+
+    <!-- السعر -->
+    <div class="field">
+      <label class="label">السعر <span class="req">*</span></label>
+      <div class="input-group">
+        <input class="input" id="price" type="number" inputmode="numeric" placeholder="0">
+        <select class="select"><option>ل.س</option><option>دولار $</option></select>
+      </div>
+      <label class="choice mt-8" style="display:inline-block">
+        <input type="checkbox" id="negotiable"><span>💬 السعر قابل للتفاوض / على السوم</span>
+      </label>
+    </div>
+
+    <!-- المنطقة -->
+    <div class="field">
+      <label class="label">المنطقة <span class="req">*</span></label>
+      <select class="select" id="area"></select>
+      <div class="hint">المدينة: الرقة (المدن الأخرى ستُضاف لاحقًا)</div>
+    </div>
+
+    <!-- رقم الهاتف -->
+    <div class="field">
+      <label class="label">📞 رقم الهاتف</label>
+      <div class="card" style="background:var(--surface-2);display:flex;align-items:center;gap:10px">
+        <span class="avatar avatar-sm">أ</span>
+        <div class="grow">
+          <div class="bold txt-sm ltr">0994 123 456</div>
+          <div class="muted txt-sm">يُؤخذ من حسابك تلقائيًا</div>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="account.html">تغيير</a>
+      </div>
+      <label class="choice mt-8" style="display:inline-block">
+        <input type="checkbox"><span>🔒 إخفاء رقمي — استقبل الرسائل فقط</span>
+      </label>
+    </div>
+
+    <!-- تنبيه المراجعة -->
+    <div class="notice notice-warn mb-16">
+      <span class="n-icon">⏳</span>
+      <div><b>إعلانك سيكون «قيد المراجعة».</b> تراجعه الإدارة قبل نشره للعامة — عادةً خلال ساعات قليلة. ستصلك رسالة عند الموافقة.</div>
+    </div>
+
+    <label class="choice mb-16" style="display:block">
+      <input type="checkbox" id="terms" checked><span>أوافق على <a href="#" class="brand-c">شروط النشر</a> وأتحمّل مسؤولية صحة المعلومات</span>
+    </label>
+
+    <button class="btn btn-primary btn-lg btn-block mb-16" onclick="publish()">🟢 نشر الإعلان</button>
+  </section>
+
+</main>
+
+<!-- ===== نافذة نجاح النشر ===== -->
+<div class="sheet" id="doneSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-body txt-c" style="padding:26px 20px">
+    <div style="font-size:56px">🎉</div>
+    <h3 style="font-size:19px;font-weight:900;margin-top:8px">تم إرسال إعلانك!</h3>
+    <p class="muted mt-8">إعلانك الآن <span class="status status-pending">⏳ قيد المراجعة</span><br>ستصلك رسالة فور الموافقة عليه.</p>
+    <div class="notice notice-info mt-16" style="text-align:start">
+      <span class="n-icon">💡</span>
+      <div>تريد أن يشوفه عدد أكبر؟ ميّز إعلانك ليظهر في الأعلى — الخدمة ستُفعَّل بعد الإطلاق.</div>
+    </div>
+    <div class="stack-sm mt-16">
+      <a class="btn btn-primary btn-block" href="account.html">📢 عرض إعلاناتي</a>
+      <a class="btn btn-ghost btn-block" href="index.html">العودة للرئيسية</a>
+    </div>
+  </div>
+</div>
+
+<div id="nav"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  document.getElementById('nav').innerHTML = bottomNav('add');
+
+  let picked = null;
+
+  // خطوة 1
+  cats.innerHTML = CATEGORIES.map(c => `
+    <button class="cat-item" data-cat="${c.id}">
+      <span class="cat-emoji">${c.icon}</span>
+      <span class="cat-name">${c.name}</span>
+    </button>`).join('');
+
+  document.querySelectorAll('[data-cat]').forEach(b =>
+    b.addEventListener('click', () => {
+      picked = CATEGORIES.find(c => c.id === b.dataset.cat);
+      pickIcon.textContent = picked.icon; pickName.textContent = picked.name;
+      subs.innerHTML = picked.subs.map(s => `<button class="chip" data-sub="${s}">${s}</button>`).join('');
+      document.querySelectorAll('[data-sub]').forEach(sb =>
+        sb.addEventListener('click', () => {
+          pickIcon2.textContent = picked.icon;
+          pickName2.textContent = picked.name;
+          pickSub.textContent = sb.dataset.sub;
+          step2.classList.add('hidden'); step3.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }));
+      step1.classList.add('hidden'); step2.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+
+  function backToStep1() {
+    step2.classList.add('hidden'); step3.classList.add('hidden'); step1.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function backToStep2() {
+    step3.classList.add('hidden'); step2.classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // رافع الصور
+  let photos = [];
+  function renderUploader() {
+    const slots = photos.map((p, i) => `
+      <div class="upload-thumb">
+        <img src="${p}" alt="صورة ${i+1}">
+        <button class="u-del" data-del="${i}" aria-label="حذف">✕</button>
+        ${i === 0 ? '<span class="u-main">الرئيسية</span>' : ''}
+      </div>`);
+    if (photos.length < 10) slots.push(`
+      <button class="upload-slot is-add" id="addPhoto">
+        <span class="u-icon">📷</span><span>إضافة</span>
+      </button>`);
+    slots.push(`<button class="upload-slot" id="addVideo"><span class="u-icon">🎬</span><span>فيديو</span></button>`);
+    uploader.innerHTML = slots.join('');
+    document.getElementById('addPhoto')?.addEventListener('click', () => {
+      const set = ['📱','🚗','🏠','🪑','📺','💻','🛋️','⚡','🧥','🍯'];
+      const cols = [['#0F766E','#134E4A'],['#B45309','#78350F'],['#334155','#0F172A'],['#7C3AED','#4C1D95']];
+      const c = cols[photos.length % cols.length];
+      photos.push(ph(picked ? picked.icon : set[photos.length % set.length], c[0], c[1]));
+      renderUploader();
+      toast('📷 أُضيفت صورة (' + photos.length + '/10)');
+    });
+    document.getElementById('addVideo')?.addEventListener('click', () => toast('🎬 اختر فيديو (حتى 60 ثانية)'));
+    document.querySelectorAll('[data-del]').forEach(b =>
+      b.addEventListener('click', () => { photos.splice(Number(b.dataset.del), 1); renderUploader(); }));
+  }
+  renderUploader();
+
+  // المناطق
+  area.innerHTML = '<option value="">اختر الحي…</option>' +
+    NEIGHBORHOODS.map(n => `<option>الرقة – ${n}</option>`).join('');
+
+  // عدّادات الأحرف
+  title.addEventListener('input', () => tlen.textContent = title.value.length);
+  desc.addEventListener('input', () => dlen.textContent = desc.value.length);
+
+  function publish() {
+    if (!title.value.trim()) { toast('⚠️ اكتب عنوان الإعلان'); title.focus(); return; }
+    if (!desc.value.trim())  { toast('⚠️ اكتب وصف المنتج'); desc.focus(); return; }
+    if (!area.value)         { toast('⚠️ اختر المنطقة'); area.focus(); return; }
+    if (!photos.length)      { toast('⚠️ أضف صورة واحدة على الأقل'); return; }
+    openSheet('doneSheet');
+  }
+</script>
+</body>
+</html>

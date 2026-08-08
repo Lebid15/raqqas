@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>تسجيل الدخول — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body style="padding-bottom:0">
+
+<div class="auth-wrap">
+
+  <div class="auth-hero">
+    <div class="brand-mark">س</div>
+    <h1>سوق الرقة</h1>
+    <p>بيع واشترِ داخل مدينتك — بسهولة وأمان</p>
+  </div>
+
+  <div class="auth-body">
+
+    <!-- ===== الخطوة 1: إدخال الهاتف / البريد ===== -->
+    <div id="stepPhone">
+      <div class="seg">
+        <button class="is-active" id="tabPhone">📱 رقم الهاتف</button>
+        <button id="tabEmail">✉️ البريد الإلكتروني</button>
+      </div>
+
+      <!-- الهاتف -->
+      <div id="paneP">
+        <div class="field">
+          <label class="label">رقم الهاتف <span class="req">*</span></label>
+          <div class="phone-input">
+            <span class="phone-cc">🇸🇾 963+</span>
+            <input class="input" id="phone" type="tel" inputmode="numeric" placeholder="994 123 456" style="text-align:left">
+          </div>
+          <div class="hint">أدخل رقمك بدون الصفر — مثال: 994123456</div>
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-block" onclick="goOtp()">متابعة ←</button>
+
+        <div class="notice notice-warn mt-16">
+          <span class="n-icon">💬</span>
+          <div>
+            <b>التحقق عبر واتساب.</b> سيصلك رمز التحقق برسالة واتساب على نفس الرقم.
+            <br><span class="txt-sm">(هذه الخدمة <b>مؤجّلة حاليًا</b> — في هذه المرحلة يتم تفعيل الحساب يدويًا من الإدارة، أو استخدم الرمز التجريبي <b class="ltr">1234</b>)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- البريد -->
+      <div id="paneE" class="hidden">
+        <div class="field">
+          <label class="label">البريد الإلكتروني <span class="req">*</span></label>
+          <input class="input ltr" type="email" placeholder="name@example.com">
+        </div>
+        <div class="field">
+          <label class="label">كلمة المرور <span class="req">*</span></label>
+          <input class="input" type="password" placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" onclick="goInfo()">متابعة ←</button>
+        <div class="txt-c mt-12"><a href="#" class="brand-c bold txt-sm">نسيت كلمة المرور؟</a></div>
+      </div>
+
+      <div class="divider">أو</div>
+      <a class="btn btn-ghost btn-block" href="index.html">👀 تصفّح بدون تسجيل</a>
+      <p class="muted txt-sm txt-c mt-16">
+        التسجيل مطلوب فقط عند نشر إعلان أو المراسلة أو الحفظ في المفضلة.
+      </p>
+      <p class="muted txt-sm txt-c mt-12">
+        بالمتابعة أنت توافق على <a href="#" class="brand-c">الشروط والأحكام</a> و<a href="#" class="brand-c">سياسة الخصوصية</a>
+      </p>
+    </div>
+
+    <!-- ===== الخطوة 2: رمز التحقق ===== -->
+    <div id="stepOtp" class="hidden">
+      <button class="btn btn-ghost btn-sm mb-16" onclick="backPhone()">→ رجوع</button>
+      <h2 style="font-size:20px;font-weight:900">أدخل رمز التحقق</h2>
+      <p class="muted mb-16">أرسلنا رمزًا مكوّنًا من 4 أرقام إلى واتساب<br><b class="ltr" id="shownPhone">+963 994 123 456</b></p>
+
+      <div class="otp-inputs mb-16">
+        <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+        <input maxlength="1" inputmode="numeric"><input maxlength="1" inputmode="numeric">
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-block" onclick="verify()">تأكيد ✓</button>
+
+      <div class="txt-c mt-16">
+        <span class="muted txt-sm">لم يصلك الرمز؟ </span>
+        <button class="brand-c bold txt-sm" id="resend" disabled>إعادة الإرسال (<span id="cd">45</span>)</button>
+      </div>
+
+      <div class="notice notice-info mt-16">
+        <span class="n-icon">🧪</span>
+        <div>وضع التجربة: استخدم الرمز <b class="ltr">1234</b></div>
+      </div>
+    </div>
+
+    <!-- ===== الخطوة 3: إكمال البيانات ===== -->
+    <div id="stepInfo" class="hidden">
+      <div class="txt-c mb-16">
+        <div style="font-size:46px">👋</div>
+        <h2 style="font-size:20px;font-weight:900">أهلًا بك في سوق الرقة</h2>
+        <p class="muted">معلومتان فقط ونبدأ</p>
+      </div>
+
+      <div class="field">
+        <label class="label">الاسم <span class="req">*</span></label>
+        <input class="input" id="uname" placeholder="مثال: أحمد الحسن">
+      </div>
+      <div class="field">
+        <label class="label">المنطقة / الحي <span class="req">*</span></label>
+        <select class="select" id="uarea"></select>
+      </div>
+      <div class="field">
+        <label class="label">رقم الهاتف</label>
+        <input class="input ltr" value="+963 994 123 456" readonly style="background:var(--surface-2)">
+        <div class="hint">✔️ سيظهر هذا الرقم في إعلاناتك (يمكنك إخفاؤه لاحقًا)</div>
+      </div>
+
+      <div class="notice notice-success mb-16">
+        <span class="n-icon">✅</span>
+        <div>هذا كل شيء — لا نطلب أي معلومات أخرى.</div>
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-block" onclick="finish()">إنشاء الحساب 🎉</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  // تبديل تبويب الهاتف/البريد
+  tabPhone.addEventListener('click', () => {
+    tabPhone.classList.add('is-active'); tabEmail.classList.remove('is-active');
+    paneP.classList.remove('hidden'); paneE.classList.add('hidden');
+  });
+  tabEmail.addEventListener('click', () => {
+    tabEmail.classList.add('is-active'); tabPhone.classList.remove('is-active');
+    paneE.classList.remove('hidden'); paneP.classList.add('hidden');
+  });
+
+  uarea.innerHTML = '<option value="">اختر الحي…</option>' +
+    NEIGHBORHOODS.map(n => `<option>الرقة – ${n}</option>`).join('');
+
+  let timer;
+  function goOtp() {
+    const v = phone.value.trim();
+    if (v.length < 6) { toast('⚠️ أدخل رقم هاتف صحيح'); phone.focus(); return; }
+    shownPhone.textContent = '+963 ' + v;
+    stepPhone.classList.add('hidden'); stepOtp.classList.remove('hidden');
+    document.querySelector('.otp-inputs input').focus();
+    let s = 45; cd.textContent = s;
+    clearInterval(timer);
+    timer = setInterval(() => {
+      if (--s <= 0) {
+        clearInterval(timer);
+        resend.disabled = false;
+        resend.innerHTML = 'إعادة الإرسال';
+      } else cd.textContent = s;
+    }, 1000);
+  }
+  function backPhone() {
+    stepOtp.classList.add('hidden'); stepPhone.classList.remove('hidden'); clearInterval(timer);
+  }
+  resend.addEventListener('click', () => toast('💬 أُعيد إرسال الرمز عبر واتساب'));
+
+  // تنقّل تلقائي بين خانات الرمز
+  const otps = document.querySelectorAll('.otp-inputs input');
+  otps.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D/g, '');
+      if (inp.value && i < otps.length - 1) otps[i + 1].focus();
+      if ([...otps].every(o => o.value)) setTimeout(verify, 200);
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) otps[i - 1].focus();
+    });
+  });
+
+  function verify() {
+    const code = [...otps].map(o => o.value).join('');
+    if (code !== '1234') { toast('❌ الرمز غير صحيح — جرّب 1234'); return; }
+    stepOtp.classList.add('hidden'); stepInfo.classList.remove('hidden'); clearInterval(timer);
+  }
+
+  function goInfo() {
+    stepPhone.classList.add('hidden'); stepInfo.classList.remove('hidden');
+  }
+
+  function finish() {
+    if (!uname.value.trim()) { toast('⚠️ اكتب اسمك'); uname.focus(); return; }
+    if (!uarea.value) { toast('⚠️ اختر المنطقة'); uarea.focus(); return; }
+    toast('🎉 أهلًا بك في سوق الرقة');
+    setTimeout(() => location.href = 'index.html', 900);
+  }
+</script>
+</body>
+</html>

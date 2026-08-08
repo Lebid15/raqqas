@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111C18">
+<title>لوحة التحكم — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="admin" style="padding-bottom:24px">
+
+<header class="header admin-header">
+  <div class="header-inner">
+    <a class="brand" href="admin.html">
+      <span class="brand-mark">👨‍💼</span>
+      <span class="brand-text">
+        <span class="brand-name">لوحة التحكم</span>
+        <span class="brand-sub">سوق الرقة</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleTheme()" aria-label="المظهر">🌓</button>
+      <a class="icon-btn" href="index.html" aria-label="الموقع">🌐</a>
+      <a class="icon-btn" href="auth.html" aria-label="خروج">🚪</a>
+    </div>
+  </div>
+</header>
+
+<div class="container mt-16">
+  <div class="admin-shell">
+
+    <!-- القائمة الجانبية (سطح المكتب) -->
+    <aside class="admin-side">
+      <div class="menu" id="sideMenu"></div>
+      <div class="notice notice-warn mt-12">
+        <span class="n-icon">⏳</span>
+        <div><b>3 إعلانات</b> بانتظار مراجعتك</div>
+      </div>
+    </aside>
+
+    <!-- المحتوى -->
+    <main class="admin-main">
+
+      <!-- تبويبات الجوال -->
+      <div class="tabs admin-tabs-mobile" id="mobileTabs"></div>
+
+      <!-- ===== الإحصائيات ===== -->
+      <section data-p="dash">
+        <div class="section-head"><h2 class="section-title">📊 نظرة عامة</h2><span class="muted txt-sm">اليوم · 8 آب 2026</span></div>
+        <div class="stat-grid mb-16">
+          <div class="stat">
+            <div class="stat-top">
+              <span class="stat-icon" style="background:var(--gold-50)">⏳</span>
+              <span class="stat-delta up">+3 اليوم</span>
+            </div>
+            <div class="stat-num">3</div><div class="stat-lbl">إعلانات قيد المراجعة</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <span class="stat-icon" style="background:var(--success-50)">✅</span>
+              <span class="stat-delta up">+18 اليوم</span>
+            </div>
+            <div class="stat-num">2,596</div><div class="stat-lbl">إعلانات منشورة</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <span class="stat-icon" style="background:var(--info-50)">👥</span>
+              <span class="stat-delta up">+7 اليوم</span>
+            </div>
+            <div class="stat-num">1,482</div><div class="stat-lbl">مستخدم مسجّل</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top">
+              <span class="stat-icon" style="background:var(--danger-50)">🚩</span>
+              <span class="stat-delta danger">3 جديدة</span>
+            </div>
+            <div class="stat-num">11</div><div class="stat-lbl">بلاغات مفتوحة</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">🔥 أنشط الأقسام هذا الأسبوع</h3>
+          <div class="stack-sm" id="topCats"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">⚡ إجراءات سريعة</h3>
+          <div class="flex wrap" style="gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="show('pending')">⏳ مراجعة الإعلانات (3)</button>
+            <button class="btn btn-danger btn-sm" onclick="show('reports')">🚩 البلاغات (3)</button>
+            <button class="btn btn-ghost btn-sm" onclick="show('users')">👥 المستخدمون</button>
+            <button class="btn btn-ghost btn-sm" onclick="show('cats')">📂 الأقسام</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== الإعلانات ===== -->
+      <section data-p="pending" class="hidden">
+        <div class="section-head"><h2 class="section-title">📢 إدارة الإعلانات</h2></div>
+
+        <div class="tabs" id="adTabs">
+          <button class="tab is-active" data-st="pending">⏳ قيد المراجعة <span class="tab-count">3</span></button>
+          <button class="tab" data-st="published">✅ منشورة <span class="tab-count">2596</span></button>
+          <button class="tab" data-st="rejected">❌ مرفوضة <span class="tab-count">42</span></button>
+          <button class="tab" data-st="reported">🚩 مبلّغ عنها <span class="tab-count">11</span></button>
+          <button class="tab" data-st="deleted">🗑️ محذوفة <span class="tab-count">17</span></button>
+        </div>
+
+        <div class="flex wrap mb-12" style="gap:8px">
+          <input class="input" placeholder="🔎 بحث في الإعلانات…" style="flex:1;min-width:180px">
+          <select class="select" style="width:auto"><option>كل الأقسام</option></select>
+        </div>
+
+        <div id="adminAds"></div>
+      </section>
+
+      <!-- ===== المستخدمون ===== -->
+      <section data-p="users" class="hidden">
+        <div class="section-head"><h2 class="section-title">👥 المستخدمون</h2><span class="muted txt-sm">1,482 مستخدم</span></div>
+        <div class="flex wrap mb-12" style="gap:8px">
+          <input class="input" placeholder="🔎 بحث بالاسم أو الرقم…" style="flex:1;min-width:180px">
+          <select class="select" style="width:auto"><option>الكل</option><option>نشط</option><option>موقوف</option><option>محظور</option></select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>المستخدم</th><th>رقم الهاتف</th><th>الإعلانات</th><th>تاريخ التسجيل</th><th>الحالة</th><th>الإجراءات</th>
+            </tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== البلاغات ===== -->
+      <section data-p="reports" class="hidden">
+        <div class="section-head"><h2 class="section-title">🚩 البلاغات</h2><span class="muted txt-sm">3 بلاغات مفتوحة</span></div>
+        <div class="notice notice-warn mb-12">
+          <span class="n-icon">🤖</span>
+          <div>قاعدة تلقائية: أي إعلان يصل إلى <b>5 بلاغات</b> يُخفى تلقائيًا لحين مراجعتك.</div>
+        </div>
+        <div id="reportsList"></div>
+      </section>
+
+      <!-- ===== طلبات الدفع ===== -->
+      <section data-p="pay" class="hidden">
+        <div class="section-head"><h2 class="section-title">💰 طلبات الدفع</h2><span class="badge badge-featured">بعد الإطلاق</span></div>
+        <div class="notice notice-info mb-12">
+          <span class="n-icon">ℹ️</span>
+          <div><b>الدفع يدوي مع تحقق يدوي.</b> البائع يدفع خارج المنصّة (شام كاش / الهرم / حوالة / نقدًا) ويرفع صورة الإيصال، وأنت تؤكّد أو ترفض من هنا. عند التأكيد يُفعَّل التمييز تلقائيًا.</div>
+        </div>
+        <div id="payList"></div>
+      </section>
+
+      <!-- ===== الأقسام ===== -->
+      <section data-p="cats" class="hidden">
+        <div class="section-head">
+          <h2 class="section-title">📂 الأقسام</h2>
+          <button class="btn btn-primary btn-sm" onclick="toast('➕ إضافة قسم جديد')">➕ قسم جديد</button>
+        </div>
+        <div class="notice notice-info mb-12">
+          <span class="n-icon">💡</span>
+          <div>الأقسام والأحياء تُدار من هنا — لا حاجة لتعديل الكود عند إضافة قسم أو حي جديد.</div>
+        </div>
+        <div id="catsAdmin"></div>
+      </section>
+
+      <!-- ===== الإعدادات ===== -->
+      <section data-p="settings" class="hidden">
+        <div class="section-head"><h2 class="section-title">⚙️ إعدادات المنصّة</h2></div>
+        <div class="card">
+          <h3 class="card-title">🛡️ المراجعة والنشر</h3>
+          <label class="choice mb-8" style="display:block"><input type="checkbox" checked><span>مراجعة كل إعلان جديد قبل النشر</span></label>
+          <label class="choice mb-8" style="display:block"><input type="checkbox" checked><span>مراجعة الإعلانات المعدَّلة أيضًا</span></label>
+          <div class="field mt-12">
+            <label class="label">الحد الأقصى للإعلانات يوميًا لكل مستخدم</label>
+            <input class="input" type="number" value="5" style="max-width:140px">
+          </div>
+          <div class="field">
+            <label class="label">مدة صلاحية الإعلان (بالأيام)</label>
+            <input class="input" type="number" value="30" style="max-width:140px">
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">💬 التحقق من الهاتف</h3>
+          <div class="choice-group">
+            <label class="choice"><input type="radio" name="verif" checked><span>✋ تفعيل يدوي (الحالي)</span></label>
+            <label class="choice"><input type="radio" name="verif"><span>💬 واتساب OTP (مؤجّل)</span></label>
+            <label class="choice"><input type="radio" name="verif"><span>📩 SMS (غير مفعّل)</span></label>
+          </div>
+          <div class="hint">التبديل بين الطرق لا يتطلب تعديل الكود — طبقة `VerificationProvider` تتكفّل بذلك.</div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">👨‍💼 المشرفون</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>الاسم</th><th>الصلاحية</th><th>آخر دخول</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>المدير العام</td><td><span class="status status-published">كل الصلاحيات</span></td><td>الآن</td><td><button class="btn btn-ghost btn-sm">تعديل</button></td></tr>
+                <tr><td>مشرف المحتوى</td><td><span class="status status-suspended">مراجعة الإعلانات</span></td><td>أمس</td><td><button class="btn btn-ghost btn-sm">تعديل</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn btn-ghost btn-sm mt-12" onclick="toast('➕ إضافة مشرف')">➕ إضافة مشرف</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== نافذة الرفض ===== -->
+<div class="sheet" id="rejectSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">❌ رفض الإعلان</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <p class="muted txt-sm mb-12">سيصل السبب إلى صاحب الإعلان كإشعار.</p>
+    <div class="opt-list">
+      <button class="opt is-sel"><span class="opt-radio"></span>📷 الصور غير واضحة أو غير مطابقة</button>
+      <button class="opt"><span class="opt-radio"></span>📝 الوصف ناقص أو غير مفهوم</button>
+      <button class="opt"><span class="opt-radio"></span>💰 السعر غير منطقي</button>
+      <button class="opt"><span class="opt-radio"></span>📂 القسم غير صحيح</button>
+      <button class="opt"><span class="opt-radio"></span>🚫 منتج ممنوع أو مخالف</button>
+      <button class="opt"><span class="opt-radio"></span>✍️ سبب آخر</button>
+    </div>
+    <div class="field mt-12">
+      <label class="label">ملاحظة للمستخدم <span class="opt">(اختياري)</span></label>
+      <textarea class="textarea" style="min-height:80px" placeholder="مثال: يرجى إعادة رفع صور أوضح للمنتج"></textarea>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" data-close-sheet>إلغاء</button>
+    <button class="btn btn-danger" onclick="closeSheet();toast('❌ رُفض الإعلان وأُبلغ المستخدم')">تأكيد الرفض</button>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const NAV = [
+    { p: 'dash',     icon: '📊', label: 'نظرة عامة' },
+    { p: 'pending',  icon: '📢', label: 'الإعلانات', count: 3 },
+    { p: 'users',    icon: '👥', label: 'المستخدمون' },
+    { p: 'reports',  icon: '🚩', label: 'البلاغات', count: 3 },
+    { p: 'pay',      icon: '💰', label: 'طلبات الدفع' },
+    { p: 'cats',     icon: '📂', label: 'الأقسام' },
+    { p: 'settings', icon: '⚙️', label: 'الإعدادات' }
+  ];
+
+  sideMenu.innerHTML = NAV.map(n => `
+    <button class="menu-item" data-nav="${n.p}">
+      <span class="menu-icon">${n.icon}</span>
+      <span class="menu-label">${n.label}</span>
+      ${n.count ? `<span class="menu-count">${n.count}</span>` : ''}
+      <span class="menu-arrow">‹</span>
+    </button>`).join('');
+
+  mobileTabs.innerHTML = NAV.map(n => `
+    <button class="tab" data-nav="${n.p}">${n.icon} ${n.label}
+      ${n.count ? `<span class="tab-count">${n.count}</span>` : ''}</button>`).join('');
+
+  function show(p) {
+    document.querySelectorAll('[data-p]').forEach(s => s.classList.toggle('hidden', s.dataset.p !== p));
+    document.querySelectorAll('#mobileTabs .tab').forEach(t => t.classList.toggle('is-active', t.dataset.nav === p));
+    document.querySelectorAll('#sideMenu .menu-item').forEach(m =>
+      m.style.background = m.dataset.nav === p ? 'var(--brand-50)' : '');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('[data-nav]').forEach(b => b.addEventListener('click', () => show(b.dataset.nav)));
+  show('dash');
+
+  /* ---- أنشط الأقسام ---- */
+  topCats.innerHTML = CATEGORIES.slice().sort((a,b) => b.count - a.count).slice(0,5).map(c => {
+    const pct = Math.round(c.count / 731 * 100);
+    return `<div>
+      <div class="flex-between txt-sm bold"><span>${c.icon} ${c.name}</span><span class="muted">${c.count}</span></div>
+      <div style="height:7px;background:var(--bg);border-radius:9px;overflow:hidden;margin-top:4px">
+        <div style="height:100%;width:${pct}%;background:var(--brand);border-radius:9px"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  /* ---- إدارة الإعلانات ---- */
+  const ACTIONS = {
+    pending: `<button class="btn btn-success btn-sm" onclick="toast('✅ نُشر الإعلان')">✅ قبول</button>
+              <button class="btn btn-danger btn-sm" data-open-sheet="rejectSheet">❌ رفض</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('✏️ وضع التعديل')">✏️ تعديل</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('👁 معاينة')">👁 معاينة</button>`,
+    published: `<button class="btn btn-ghost btn-sm" onclick="toast('✏️ وضع التعديل')">✏️ تعديل</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('🚫 أُوقف الإعلان')">🚫 إيقاف</button>
+              <button class="btn btn-gold btn-sm" onclick="toast('⭐ مُيّز الإعلان')">⭐ تمييز</button>
+              <button class="btn btn-ghost btn-sm danger" onclick="toast('🗑️ حُذف الإعلان')">🗑️ حذف</button>`,
+    rejected: `<button class="btn btn-success btn-sm" onclick="toast('✅ أُعيد قبوله')">↩️ إعادة قبول</button>
+              <button class="btn btn-ghost btn-sm danger" onclick="toast('🗑️ حُذف نهائيًا')">🗑️ حذف</button>`,
+    reported: `<button class="btn btn-danger btn-sm" onclick="toast('🚫 أُوقف الإعلان')">🚫 إيقاف الإعلان</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('✅ رُفض البلاغ')">✅ البلاغ غير صحيح</button>
+              <button class="btn btn-ghost btn-sm danger" onclick="toast('🚷 حُظر المستخدم')">🚷 حظر المستخدم</button>`,
+    deleted: `<button class="btn btn-ghost btn-sm" onclick="toast('↩️ أُعيد الإعلان')">↩️ استرجاع</button>`
+  };
+  const LABELS = {
+    pending: ['status-pending','⏳ قيد المراجعة'], published: ['status-published','✅ منشور'],
+    rejected: ['status-rejected','❌ مرفوض'], reported: ['status-reported','🚩 مبلّغ عنه'],
+    deleted: ['status-deleted','🗑️ محذوف']
+  };
+
+  function renderAds(st) {
+    const pool = st === 'pending' ? LISTINGS.slice(0,3)
+               : st === 'reported' ? LISTINGS.slice(0,2)
+               : st === 'rejected' ? LISTINGS.slice(8,10)
+               : st === 'deleted'  ? LISTINGS.slice(13,15)
+               : LISTINGS.slice(0,6);
+    const [cls, lbl] = LABELS[st];
+    adminAds.innerHTML = pool.map(a => `
+      <div class="admin-row">
+        <div class="admin-row-thumb"><img src="${a.img}" alt=""></div>
+        <div class="admin-row-body">
+          <div class="flex-between mb-8">
+            <span class="status ${cls}">${lbl}</span>
+            <span class="muted txt-sm">#${String(a.id).padStart(5,'0')} · ${a.time}</span>
+          </div>
+          <div class="admin-row-title">${a.title}</div>
+          <div class="admin-row-meta">
+            💰 ${a.price ? a.price.toLocaleString('en-US') + (a.currency === 'USD' ? ' $' : ' ل.س') : 'على السوم'}
+            · 📂 ${a.catName} · 📍 ${a.area}
+          </div>
+          <div class="admin-row-meta">👤 ${a.seller} · <span class="ltr">${a.sellerPhone}</span> · 📷 ${a.photos} صور${a.video ? ' · 🎬 فيديو' : ''}</div>
+          ${st === 'reported' ? `<div class="notice notice-danger mt-8" style="padding:7px 10px;font-size:11.5px"><span class="n-icon" style="font-size:13px">🚩</span><div><b>3 بلاغات</b> — السبب الأكثر تكرارًا: احتيال</div></div>` : ''}
+          <div class="admin-actions">${ACTIONS[st]}</div>
+        </div>
+      </div>`).join('');
+    document.querySelectorAll('[data-open-sheet]').forEach(b =>
+      b.addEventListener('click', () => openSheet(b.dataset.openSheet)));
+  }
+  renderAds('pending');
+  document.querySelectorAll('#adTabs .tab').forEach(t =>
+    t.addEventListener('click', () => {
+      document.querySelectorAll('#adTabs .tab').forEach(x => x.classList.remove('is-active'));
+      t.classList.add('is-active');
+      renderAds(t.dataset.st);
+    }));
+
+  /* ---- المستخدمون ---- */
+  const USTATUS = { active: ['status-published','نشط'], suspended: ['status-pending','موقوف'], banned: ['status-rejected','محظور'] };
+  usersBody.innerHTML = ADMIN_USERS.map(u => {
+    const [cls, lbl] = USTATUS[u.status];
+    return `<tr>
+      <td><div class="flex"><span class="avatar avatar-sm">${u.name.charAt(0)}</span><b>${u.name}</b></div></td>
+      <td class="ltr">${u.phone}</td>
+      <td>${u.ads}</td>
+      <td class="ltr">${u.joined}</td>
+      <td><span class="status ${cls}">${lbl}</span></td>
+      <td><div class="flex" style="gap:5px">
+        <button class="btn btn-ghost btn-sm" onclick="toast('👁 عرض إعلانات ${u.name}')">👁</button>
+        ${u.status === 'active'
+          ? `<button class="btn btn-ghost btn-sm" onclick="toast('⏸️ أُوقف الحساب')">⏸️ إيقاف</button>
+             <button class="btn btn-ghost btn-sm danger" onclick="toast('🚷 حُظر الحساب')">🚷 حظر</button>`
+          : `<button class="btn btn-success btn-sm" onclick="toast('✅ أُعيد التفعيل')">✅ إعادة تفعيل</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  /* ---- البلاغات ---- */
+  reportsList.innerHTML = REPORTS.map(r => `
+    <div class="admin-row">
+      <div class="admin-row-body">
+        <div class="flex-between mb-8">
+          <span class="status status-reported">🚩 ${r.reason}</span>
+          <span class="muted txt-sm">${r.time} · ${r.count} بلاغات</span>
+        </div>
+        <div class="admin-row-title">📦 ${r.listing}</div>
+        <div class="admin-row-meta">👤 المُبلِّغ: ${r.reporter}</div>
+        <div class="notice notice-danger mt-8" style="padding:8px 11px;font-size:12px">
+          <span class="n-icon" style="font-size:14px">💬</span><div>${r.note}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn btn-danger btn-sm" onclick="toast('🚫 أُوقف الإعلان')">🚫 إيقاف الإعلان</button>
+          <button class="btn btn-ghost btn-sm danger" onclick="toast('🚷 حُظر المستخدم')">🚷 حظر البائع</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('✅ أُغلق البلاغ')">✅ البلاغ غير صحيح</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('👁 عرض الإعلان')">👁 عرض</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  /* ---- طلبات الدفع (نموذج للمرحلة القادمة) ---- */
+  const PAYMENTS = [
+    { user: 'معرض النخبة', ad: 'غرفة نوم كاملة خشب زان', pkg: 'تمييز 30 يومًا', amount: '150,000 ل.س', method: 'شام كاش', ref: 'SC-88214', time: 'منذ ساعة' },
+    { user: 'محمد العلي', ad: 'كيا ريو 2015 — فحص كامل', pkg: 'تثبيت 7 أيام', amount: '60,000 ل.س', method: 'حوالة الهرم', ref: 'HR-40127', time: 'منذ 4 ساعات' }
+  ];
+  payList.innerHTML = PAYMENTS.map(p => `
+    <div class="admin-row">
+      <div class="admin-row-thumb" style="display:grid;place-items:center;background:var(--surface-2);font-size:26px">🧾</div>
+      <div class="admin-row-body">
+        <div class="flex-between mb-8">
+          <span class="status status-pending">⏳ بانتظار التحقق</span>
+          <span class="muted txt-sm">${p.time}</span>
+        </div>
+        <div class="admin-row-title">${p.pkg} — ${p.amount}</div>
+        <div class="admin-row-meta">👤 ${p.user} · 📦 ${p.ad}</div>
+        <div class="admin-row-meta">💳 ${p.method} · رقم العملية: <span class="ltr bold">${p.ref}</span></div>
+        <div class="admin-actions">
+          <button class="btn btn-ghost btn-sm" onclick="toast('🧾 عرض صورة الإيصال')">🧾 صورة الإيصال</button>
+          <button class="btn btn-success btn-sm" onclick="toast('✅ تم التأكيد — فُعِّل التمييز')">✅ تأكيد الدفع</button>
+          <button class="btn btn-danger btn-sm" onclick="toast('❌ رُفض الطلب')">❌ رفض</button>
+        </div>
+      </div>
+    </div>`).join('');
+
+  /* ---- إدارة الأقسام ---- */
+  catsAdmin.innerHTML = CATEGORIES.map((c, i) => `
+    <div class="admin-row" style="align-items:center">
+      <div style="display:grid;place-items:center;width:44px;font-size:22px">${c.icon}</div>
+      <div class="admin-row-body">
+        <div class="admin-row-title">${c.name}</div>
+        <div class="admin-row-meta">${c.count} إعلان · ${c.subs.length} أقسام فرعية · الترتيب ${i + 1}</div>
+      </div>
+      <div class="flex" style="gap:5px">
+        <button class="btn btn-ghost btn-sm" onclick="toast('✏️ تعديل ${c.name}')">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="toast('⬆️ نُقل للأعلى')">⬆️</button>
+        <button class="btn btn-ghost btn-sm" onclick="toast('👁 أُخفي القسم')">👁</button>
+      </div>
+    </div>`).join('');
+</script>
+</body>
+</html>

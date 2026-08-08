@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>حسابي — سوق الرقة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="profile-head">
+  <div class="avatar avatar-lg">أ</div>
+  <div class="profile-name">أحمد الحسن</div>
+  <div class="profile-phone">0994 123 456 ✔️</div>
+  <div class="muted" style="color:rgba(255,255,255,.8);font-size:12px">📍 الرقة – حي المشلب · عضو منذ 2024</div>
+</div>
+
+<main class="container">
+
+  <div class="profile-stats">
+    <div class="pstat"><div class="pstat-num">7</div><div class="pstat-lbl">إعلاناتي</div></div>
+    <div class="pstat"><div class="pstat-num">1,204</div><div class="pstat-lbl">مشاهدة</div></div>
+    <div class="pstat"><div class="pstat-num">12</div><div class="pstat-lbl">محادثة</div></div>
+  </div>
+
+  <!-- القائمة -->
+  <div class="section">
+    <div class="menu">
+      <button class="menu-item" data-open-sheet="profileSheet">
+        <span class="menu-icon">👤</span><span class="menu-label">معلوماتي</span><span class="menu-arrow">‹</span>
+      </button>
+      <a class="menu-item" href="#myads">
+        <span class="menu-icon">📢</span><span class="menu-label">إعلاناتي</span>
+        <span class="menu-count">7</span><span class="menu-arrow">‹</span>
+      </a>
+      <a class="menu-item" href="favorites.html">
+        <span class="menu-icon">❤️</span><span class="menu-label">المفضلة</span>
+        <span class="menu-count">3</span><span class="menu-arrow">‹</span>
+      </a>
+      <a class="menu-item" href="messages.html">
+        <span class="menu-icon">💬</span><span class="menu-label">رسائلي</span>
+        <span class="menu-count">3</span><span class="menu-arrow">‹</span>
+      </a>
+      <button class="menu-item" data-open-sheet="notifSheet">
+        <span class="menu-icon">🔔</span><span class="menu-label">الإشعارات</span>
+        <span class="menu-count">5</span><span class="menu-arrow">‹</span>
+      </button>
+      <button class="menu-item" data-open-sheet="settingsSheet">
+        <span class="menu-icon">⚙️</span><span class="menu-label">الإعدادات</span><span class="menu-arrow">‹</span>
+      </button>
+      <a class="menu-item" href="admin.html">
+        <span class="menu-icon">👨‍💼</span><span class="menu-label">لوحة التحكم <span class="badge badge-featured">للإدارة</span></span><span class="menu-arrow">‹</span>
+      </a>
+      <button class="menu-item is-danger" onclick="location.href='auth.html'">
+        <span class="menu-icon">🚪</span><span class="menu-label">تسجيل الخروج</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- إعلاناتي -->
+  <section class="section" id="myads">
+    <div class="section-head">
+      <h2 class="section-title">📢 إعلاناتي</h2>
+      <a class="section-more" href="add.html">➕ إعلان جديد</a>
+    </div>
+
+    <div class="tabs">
+      <button class="tab is-active" data-panel="all">الكل <span class="tab-count">4</span></button>
+      <button class="tab" data-panel="published">منشورة <span class="tab-count">1</span></button>
+      <button class="tab" data-panel="pending">قيد المراجعة <span class="tab-count">1</span></button>
+      <button class="tab" data-panel="rejected">مرفوضة <span class="tab-count">1</span></button>
+      <button class="tab" data-panel="expired">منتهية <span class="tab-count">1</span></button>
+    </div>
+
+    <div data-panel-content="all" class="stack-sm"></div>
+    <div data-panel-content="published" class="stack-sm hidden"></div>
+    <div data-panel-content="pending" class="stack-sm hidden"></div>
+    <div data-panel-content="rejected" class="stack-sm hidden"></div>
+    <div data-panel-content="expired" class="stack-sm hidden"></div>
+  </section>
+
+  <div class="section txt-c muted txt-sm" style="padding-bottom:20px">
+    سوق الرقة · الإصدار 1.0 (نموذج تصميم)<br>
+    <a href="#" class="brand-c">الشروط والأحكام</a> · <a href="#" class="brand-c">سياسة الخصوصية</a> · <a href="#" class="brand-c">تواصل معنا</a>
+  </div>
+</main>
+
+<!-- ===== معلوماتي ===== -->
+<div class="sheet" id="profileSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">👤 معلوماتي</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="txt-c mb-16">
+      <div class="avatar avatar-lg" style="margin-inline:auto">أ</div>
+      <button class="btn btn-ghost btn-sm mt-8" onclick="toast('📷 تغيير الصورة')">تغيير الصورة</button>
+    </div>
+    <div class="field">
+      <label class="label">الاسم <span class="req">*</span></label>
+      <input class="input" value="أحمد الحسن">
+    </div>
+    <div class="field">
+      <label class="label">رقم الهاتف <span class="req">*</span></label>
+      <input class="input ltr" value="0994 123 456" readonly style="background:var(--surface-2)">
+      <div class="hint">✔️ رقم موثّق · لتغييره تواصل مع الدعم</div>
+    </div>
+    <div class="field">
+      <label class="label">المنطقة / الحي <span class="req">*</span></label>
+      <select class="select" id="areaSel"></select>
+    </div>
+    <div class="notice notice-info">
+      <span class="n-icon">🔒</span>
+      <div>لا نطلب منك أي معلومات إضافية. هذه الحقول الثلاثة فقط هي المطلوبة.</div>
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn btn-ghost" data-close-sheet>إلغاء</button>
+    <button class="btn btn-primary" onclick="closeSheet();toast('✅ حُفظت التعديلات')">حفظ</button>
+  </div>
+</div>
+
+<!-- ===== الإشعارات ===== -->
+<div class="sheet" id="notifSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">🔔 الإشعارات</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="stack-sm">
+      <div class="card" style="border-inline-start:3px solid var(--success)">
+        <div class="bold txt-sm">✅ تمت الموافقة على إعلانك</div>
+        <div class="muted txt-sm">«iPhone 15 Pro — 256 جيجا» أصبح منشورًا الآن</div>
+        <div class="muted txt-sm">منذ 3 ساعات</div>
+      </div>
+      <div class="card" style="border-inline-start:3px solid var(--brand)">
+        <div class="bold txt-sm">💬 رسالة جديدة من محمد</div>
+        <div class="muted txt-sm">«هل الجهاز موجود؟»</div>
+        <div class="muted txt-sm">منذ 5 ساعات</div>
+      </div>
+      <div class="card" style="border-inline-start:3px solid var(--danger)">
+        <div class="bold txt-sm">❌ رُفض إعلانك</div>
+        <div class="muted txt-sm">«مولدة كهرباء 5 كيلو» — السبب: الصور غير واضحة</div>
+        <div class="muted txt-sm">أمس</div>
+      </div>
+      <div class="card" style="border-inline-start:3px solid var(--gold)">
+        <div class="bold txt-sm">⏰ إعلانك ينتهي بعد 3 أيام</div>
+        <div class="muted txt-sm">«تلفزيون LG سمارت 55 إنش» — جدّده ليبقى ظاهرًا</div>
+        <div class="muted txt-sm">أمس</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== الإعدادات ===== -->
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <h3 class="sheet-title">⚙️ الإعدادات</h3>
+    <button class="icon-btn" data-close-sheet aria-label="إغلاق">✕</button>
+  </div>
+  <div class="sheet-body">
+    <div class="field">
+      <label class="label">🌙 المظهر</label>
+      <div class="choice-group">
+        <label class="choice"><input type="radio" name="th" checked><span>تلقائي</span></label>
+        <label class="choice"><input type="radio" name="th" onclick="document.documentElement.setAttribute('data-theme','light');localStorage.setItem('souq_theme','light')"><span>☀️ فاتح</span></label>
+        <label class="choice"><input type="radio" name="th" onclick="document.documentElement.setAttribute('data-theme','dark');localStorage.setItem('souq_theme','dark')"><span>🌙 داكن</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">🔔 الإشعارات</label>
+      <div class="stack-sm">
+        <label class="choice" style="display:block"><input type="checkbox" checked><span>رسائل جديدة</span></label>
+        <label class="choice" style="display:block"><input type="checkbox" checked><span>حالة إعلاناتي</span></label>
+        <label class="choice" style="display:block"><input type="checkbox"><span>عروض وتخفيضات</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">📶 توفير البيانات</label>
+      <label class="choice" style="display:block"><input type="checkbox" checked><span>تحميل صور بجودة أقل عند ضعف الإنترنت</span></label>
+    </div>
+    <div class="field">
+      <label class="label">🌐 اللغة</label>
+      <select class="select"><option>العربية</option><option>English (قريبًا)</option><option>Kurdî (قريبًا)</option></select>
+    </div>
+    <button class="btn btn-ghost btn-block danger mt-8" onclick="toast('⚠️ يتطلب تأكيدًا')">🗑️ حذف حسابي نهائيًا</button>
+  </div>
+</div>
+
+<div id="nav"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  document.getElementById('nav').innerHTML = bottomNav('account');
+
+  document.getElementById('areaSel').innerHTML =
+    NEIGHBORHOODS.map(n => `<option ${n === 'المشلب' ? 'selected' : ''}>الرقة – ${n}</option>`).join('');
+
+  const STATUS = {
+    published: ['status-published', '✅ منشور'],
+    pending:   ['status-pending',   '⏳ قيد المراجعة'],
+    rejected:  ['status-rejected',  '❌ مرفوض'],
+    expired:   ['status-suspended', '⏰ منتهٍ']
+  };
+
+  function myRow(ad) {
+    const [cls, label] = STATUS[ad.status];
+    const actions = {
+      published: `<a class="btn btn-ghost btn-sm" href="add.html">✏️ تعديل</a>
+                  <button class="btn btn-gold btn-sm" onclick="toast('⭐ خدمة التمييز بعد الإطلاق')">⭐ تمييز</button>
+                  <button class="btn btn-ghost btn-sm danger" onclick="toast('🗑️ حُذف الإعلان')">🗑️</button>`,
+      pending:   `<a class="btn btn-ghost btn-sm" href="add.html">✏️ تعديل</a>
+                  <button class="btn btn-ghost btn-sm danger" onclick="toast('❌ أُلغي الإعلان')">إلغاء</button>`,
+      rejected:  `<a class="btn btn-primary btn-sm" href="add.html">✏️ تعديل وإعادة إرسال</a>`,
+      expired:   `<button class="btn btn-primary btn-sm" onclick="toast('🔄 أُعيد نشر الإعلان')">🔄 تجديد</button>`
+    }[ad.status];
+
+    return `
+    <div class="ad-row">
+      <a class="ad-row-thumb" href="listing.html?id=${ad.id}"><img src="${ad.img}" alt=""></a>
+      <div class="ad-row-body">
+        <div class="flex-between"><span class="status ${cls}">${label}</span><span class="muted txt-sm">👁 ${ad.views}</span></div>
+        <a class="ad-row-title" href="listing.html?id=${ad.id}">${ad.title}</a>
+        <div class="ad-price" style="font-size:14px">${money(ad.price, ad.currency)}</div>
+        ${ad.statusNote ? `<div class="notice ${ad.status === 'rejected' ? 'notice-danger' : 'notice-warn'}" style="padding:7px 10px;font-size:11.5px;margin-top:5px"><span class="n-icon" style="font-size:13px">${ad.status === 'rejected' ? '❌' : '⏳'}</span><div>${ad.statusNote}</div></div>` : ''}
+        <div class="ad-row-actions">${actions}</div>
+      </div>
+    </div>`;
+  }
+
+  document.querySelector('[data-panel-content="all"]').innerHTML = MY_LISTINGS.map(myRow).join('');
+  ['published','pending','rejected','expired'].forEach(s => {
+    const list = MY_LISTINGS.filter(a => a.status === s);
+    document.querySelector(`[data-panel-content="${s}"]`).innerHTML =
+      list.length ? list.map(myRow).join('')
+      : `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">لا توجد إعلانات</div></div>`;
+  });
+
+  bindTabs();
+</script>
+</body>
+</html>

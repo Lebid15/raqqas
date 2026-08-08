@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<title>سوق الرقة — بيع واشترِ داخل مدينتك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div id="header"></div>
+
+<main class="container">
+
+  <!-- الأقسام -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">📂 الأقسام</h2>
+      <a class="section-more" href="categories.html">عرض الكل ‹</a>
+    </div>
+    <div class="cat-grid" id="cats"></div>
+  </section>
+
+  <!-- الإعلانات المميزة -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">🔥 الإعلانات المميزة</h2>
+      <a class="section-more" href="search.html?featured=1">عرض الكل ‹</a>
+    </div>
+    <div class="hscroll" id="featured"></div>
+  </section>
+
+  <!-- بانر التمييز -->
+  <section class="section">
+    <div class="card" style="background:linear-gradient(135deg,var(--gold-50),var(--surface));border-color:var(--gold)">
+      <div class="flex" style="gap:12px">
+        <div style="font-size:30px">⭐</div>
+        <div class="grow">
+          <div class="bold" style="font-size:14.5px">ميّز إعلانك ليظهر في المقدمة</div>
+          <div class="txt-sm muted">إعلانك يشوفه 5 أضعاف الناس — قريبًا</div>
+        </div>
+        <button class="btn btn-gold btn-sm" onclick="toast('💰 خدمة التمييز ستُفعَّل بعد الإطلاق')">اعرف أكثر</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- أحدث الإعلانات -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">🆕 أحدث الإعلانات</h2>
+      <a class="section-more" href="search.html">عرض الكل ‹</a>
+    </div>
+    <div class="chips mb-12">
+      <button class="chip is-active">الكل</button>
+      <button class="chip">🚗 السيارات</button>
+      <button class="chip">🏠 العقارات</button>
+      <button class="chip">📱 موبايلات</button>
+      <button class="chip">🪑 أثاث</button>
+      <button class="chip">🐄 حيوانات</button>
+    </div>
+    <div class="ads-grid" id="latest"></div>
+    <div class="txt-c mt-16">
+      <button class="btn btn-ghost" onclick="toast('جاري تحميل المزيد…')">تحميل المزيد ↓</button>
+    </div>
+  </section>
+
+  <div class="section txt-c muted txt-sm" style="padding-bottom:20px">
+    سوق الرقة — نموذج تصميم أوّلي · 2026
+    <br>
+    <a href="admin.html" class="brand-c bold">لوحة التحكم 👨‍💼</a> ·
+    <a href="auth.html" class="brand-c bold">تسجيل الدخول</a> ·
+    <button class="brand-c bold" onclick="toggleTheme()">🌙 تبديل الوضع</button>
+  </div>
+
+</main>
+
+<div id="nav"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  document.getElementById('header').innerHTML = mainHeader('home');
+  document.getElementById('nav').innerHTML = bottomNav('home');
+
+  // الأقسام
+  document.getElementById('cats').innerHTML = CATEGORIES.map(c => `
+    <a class="cat-item" href="search.html?cat=${c.id}">
+      <span class="cat-emoji">${c.icon}</span>
+      <span class="cat-name">${c.name}</span>
+      <span class="cat-count">${c.count}</span>
+    </a>`).join('');
+
+  // المميزة
+  document.getElementById('featured').innerHTML =
+    LISTINGS.filter(a => a.featured).map(adCard).join('');
+
+  // الأحدث
+  document.getElementById('latest').innerHTML =
+    LISTINGS.filter(a => !a.featured).map(adCard).join('');
+
+  bindFavs();
+
+  // شرائح التصفية السريعة
+  document.querySelectorAll('.chips .chip').forEach(ch =>
+    ch.addEventListener('click', () => {
+      document.querySelectorAll('.chips .chip').forEach(c => c.classList.remove('is-active'));
+      ch.classList.add('is-active');
+    }));
+</script>
+</body>
+</html>
