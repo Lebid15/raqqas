@@ -12,17 +12,8 @@
 </head>
 <body>
 
-<!-- ترويسة البحث -->
-<header class="subheader">
-  <div class="subheader-inner">
-    <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
-    <div class="searchbar" style="box-shadow:none;border:1.5px solid var(--line);background:var(--bg)">
-      <span class="sb-icon">🔎</span>
-      <input id="q" type="search" placeholder="ماذا تبحث؟" value="غسالة سامسونغ" autocomplete="off">
-      <button id="clear" aria-label="مسح" style="color:var(--ink-3)">✕</button>
-    </div>
-  </div>
-</header>
+<!-- الترويسة الأساسية + حقل البحث -->
+<div id="header"></div>
 
 <main class="container">
 
@@ -146,6 +137,8 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
+  document.getElementById('header').innerHTML =
+    mainHeader('search', { search: 'input', value: 'غسالة سامسونغ', back: true });
   document.getElementById('nav').innerHTML = bottomNav('home');
 
   let results = [...LISTINGS];

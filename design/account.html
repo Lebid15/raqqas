@@ -12,6 +12,8 @@
 </head>
 <body>
 
+<div id="header"></div>
+
 <div class="profile-head">
   <div class="avatar avatar-lg">أ</div>
   <div class="profile-name">أحمد الحسن</div>
@@ -199,6 +201,7 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
+  document.getElementById('header').innerHTML = mainHeader('account');
   document.getElementById('nav').innerHTML = bottomNav('account');
 
   document.getElementById('areaSel').innerHTML =

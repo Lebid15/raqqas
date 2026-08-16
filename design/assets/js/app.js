@@ -151,8 +151,22 @@ function bottomNav(active) {
   </nav>`;
 }
 
-/* ---------- الترويسة الرئيسية ---------- */
-function mainHeader(active) {
+/* ---------- رجوع آمن (يعود للرئيسية إن لم يوجد سجل) ---------- */
+function goBack(fallback = 'index.html') {
+  if (history.length > 1) history.back();
+  else location.href = fallback;
+}
+
+/* ---------- الترويسة الرئيسية ----------
+   الخيارات:
+   - search : 'link' (افتراضي) | 'input' (حقل بحث حيّ) | false (بدون شريط بحث)
+   - value  : القيمة المبدئية لحقل البحث
+   - title  : عنوان الصفحة — يظهر في صف داخل الترويسة بدل شريط البحث
+   - back   : إظهار زر الرجوع
+   - actions: HTML لأزرار إضافية في صف العنوان
+*/
+function mainHeader(active, opts = {}) {
+  const { search = 'link', value = '', title = '', back = false, actions = '' } = opts;
   const links = [
     { id: 'home', href: 'index.html', label: 'الرئيسية' },
     { id: 'cats', href: 'categories.html', label: 'الأقسام' },
@@ -161,6 +175,39 @@ function mainHeader(active) {
     { id: 'messages', href: 'messages.html', label: 'الرسائل' },
     { id: 'account', href: 'account.html', label: 'حسابي' }
   ];
+
+  const backBtn = back
+    ? `<button class="icon-btn is-back" onclick="goBack()" aria-label="رجوع">→</button>`
+    : '';
+
+  let row = '';
+  if (title) {
+    row = `
+    <div class="header-bar">
+      ${backBtn}
+      <h1 class="header-bar-title">${title}</h1>
+      ${actions}
+    </div>`;
+  } else if (search === 'input') {
+    row = `
+    <div class="header-search is-live">
+      ${backBtn}
+      <form class="searchbar" role="search" onsubmit="return false">
+        <span class="sb-icon">🔎</span>
+        <input id="q" type="search" placeholder="ماذا تبحث؟" value="${value}" autocomplete="off">
+        <button type="button" id="clear" class="sb-clear" aria-label="مسح البحث">✕</button>
+      </form>
+    </div>`;
+  } else if (search) {
+    row = `
+    <div class="header-search">
+      <a class="searchbar" href="search.html">
+        <span class="sb-icon">🔎</span>
+        <span>ماذا تبحث؟</span>
+      </a>
+    </div>`;
+  }
+
   return `
   <header class="header">
     <div class="header-inner">
@@ -179,12 +226,7 @@ function mainHeader(active) {
         <a class="icon-btn" href="account.html#notifications" aria-label="الإشعارات">🔔</a>
       </div>
     </div>
-    <div class="header-search">
-      <a class="searchbar" href="search.html">
-        <span class="sb-icon">🔎</span>
-        <span>ماذا تبحث؟</span>
-      </a>
-    </div>
+    ${row}
   </header>`;
 }
 
@@ -193,7 +235,7 @@ function subHeader(title, actionsHtml = '') {
   return `
   <header class="subheader">
     <div class="subheader-inner">
-      <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
+      <button class="icon-btn" onclick="goBack()" aria-label="رجوع">→</button>
       <h1 class="subheader-title">${title}</h1>
       ${actionsHtml}
     </div>
@@ -234,8 +276,18 @@ function toggleTheme() {
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 
+/* ---------- ضبط ارتفاع الترويسة اللاصقة ----------
+   العناصر اللاصقة تحت الترويسة (شريط المرشّحات…) تعتمد على --sticky-top،
+   والترويسة الرئيسية أطول من الداخلية وتتغيّر حسب عرض الشاشة. */
+function syncStickyTop() {
+  const h = $('.header, .subheader');
+  document.documentElement.style.setProperty('--sticky-top', (h ? h.offsetHeight : 0) + 'px');
+}
+window.addEventListener('resize', syncStickyTop);
+
 /* ---------- تهيئة عامة عند تحميل أي صفحة ---------- */
 document.addEventListener('DOMContentLoaded', () => {
+  syncStickyTop();
   bindFavs();
   bindTabs();
   // إغلاق النوافذ السفلية عبر الأزرار المخصّصة

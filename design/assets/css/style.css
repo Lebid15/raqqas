@@ -46,6 +46,8 @@
 
   --nav-h: 66px;
   --header-h: 56px;
+  /* ارتفاع الترويسة اللاصقة الفعلي — يضبطه syncStickyTop() في app.js */
+  --sticky-top: var(--header-h);
   --maxw: 1120px;
 
   --font: 'Cairo', 'Noto Kufi Arabic', 'Segoe UI', Tahoma, system-ui, sans-serif;
@@ -173,6 +175,29 @@ ul, ol { list-style: none; }
 .searchbar input { border: 0; background: none; flex: 1; outline: none; color: var(--ink); }
 .searchbar input::placeholder { color: var(--ink-3); }
 .searchbar .sb-icon { font-size: 16px; }
+
+/* شريط بحث حيّ داخل الترويسة (صفحة البحث) */
+.header-search.is-live { display: flex; align-items: center; gap: 8px; }
+.header-search.is-live .searchbar { flex: 1; min-width: 0; }
+.searchbar .sb-clear { color: var(--ink-3); font-size: 13px; padding: 2px 0; flex-shrink: 0; }
+
+/* صف عنوان الصفحة داخل الترويسة (المفضلة…) */
+.header-bar {
+  max-width: var(--maxw); margin-inline: auto;
+  padding: 0 14px 11px; display: flex; align-items: center; gap: 8px;
+}
+.header-bar-title { font-size: 16.5px; font-weight: 800; flex: 1; }
+
+/* زر الرجوع داخل الترويسة الخضراء */
+.header .icon-btn.is-back {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: rgba(255,255,255,.16); font-size: 18px;
+}
+.header .icon-btn.is-back:hover { background: rgba(255,255,255,.3); }
+
+/* زر ثانوي فوق خلفية العلامة */
+.btn-onbrand { background: rgba(255,255,255,.18); color: #fff; border-color: rgba(255,255,255,.3); }
+.btn-onbrand:hover { background: rgba(255,255,255,.3); filter: none; }
 
 .header-loc {
   display: inline-flex; align-items: center; gap: 5px;
@@ -485,7 +510,7 @@ ul, ol { list-style: none; }
 
 .filter-bar {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 0; position: sticky; top: var(--header-h); z-index: 40;
+  padding: 10px 0; position: sticky; top: var(--sticky-top); z-index: 40;
   background: var(--bg);
 }
 .result-count { font-size: 13px; color: var(--ink-2); font-weight: 700; padding: 4px 0 10px; }
@@ -596,7 +621,7 @@ body.has-action-bar { padding-bottom: 84px; }
 .chat-ad {
   display: flex; gap: 10px; align-items: center; padding: 9px 14px;
   background: var(--surface-2); border-bottom: 1px solid var(--line);
-  position: sticky; top: var(--header-h); z-index: 40;
+  position: sticky; top: var(--sticky-top); z-index: 40;
 }
 .chat-ad img { width: 42px; height: 42px; border-radius: var(--r-sm); object-fit: cover; }
 .chat-ad-title { font-size: 12.5px; font-weight: 700; line-height: 1.4; }

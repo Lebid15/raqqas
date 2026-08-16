@@ -12,13 +12,7 @@
 </head>
 <body>
 
-<header class="subheader">
-  <div class="subheader-inner">
-    <button class="icon-btn" onclick="history.back()" aria-label="رجوع">→</button>
-    <h1 class="subheader-title">❤️ المفضلة</h1>
-    <button class="btn btn-ghost btn-sm" onclick="clearAll()">مسح الكل</button>
-  </div>
-</header>
+<div id="header"></div>
 
 <main class="container">
   <div class="section">
@@ -44,6 +38,11 @@
 <script src="assets/js/data.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
+  document.getElementById('header').innerHTML = mainHeader('favorites', {
+    title: '❤️ المفضلة',
+    back: true,
+    actions: '<button class="btn btn-onbrand btn-sm" onclick="clearAll()">مسح الكل</button>'
+  });
   document.getElementById('nav').innerHTML = bottomNav('account');
 
   function render() {
