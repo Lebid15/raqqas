@@ -23,7 +23,7 @@ npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Python / Django (المرحلة القادمة)
+# Python / Django
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -40,3 +40,10 @@ celerybeat-schedule
 *.log
 *.tmp
 .cache/
+
+# Expo
+.expo/
+web-build/
+*.jks
+*.keystore
+google-services.json

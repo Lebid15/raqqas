@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "سوق الرقة",
+    "slug": "souq-raqqa",
+    "scheme": "souqraqqa",
+    "version": "1.2.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#0B7A5D",
+      "resizeMode": "contain",
+      "image": "./assets/icon.png"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.souqraqqa.app"
+    },
+    "android": {
+      "package": "com.souqraqqa.app",
+      "versionCode": 3,
+      "adaptiveIcon": {
+        "backgroundColor": "#0B7A5D",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-localization",
+      "expo-image",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "نحتاج الوصول إلى صورك لإضافتها إلى إعلانك."
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "https://souq.syrz1.com/api/v1"
+    },
+    "runtimeVersion": "2",
+    "updates": {
+      "enabled": true,
+      "url": "https://souq.syrz1.com/api/v1/updates/manifest",
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    }
+  }
+}

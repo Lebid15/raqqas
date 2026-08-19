@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B7A5D">
+<meta name="robots" content="noindex, nofollow">
+<title>سوق الرقة — اختبار الاتصال</title>
+<style>
+  :root {
+    --brand: #0B7A5D;
+    --brand-700: #075642;
+    --brand-50: #E6F4EF;
+    --gold: #E8940C;
+    --gold-50: #FDF3E2;
+    --danger: #DC2626;
+    --danger-50: #FEE9E9;
+    --success: #15803D;
+    --success-50: #E7F6EC;
+    --bg: #F4F6F5;
+    --surface: #FFFFFF;
+    --ink: #111C18;
+    --ink-2: #55605B;
+    --ink-3: #8B958F;
+    --line: #E4E8E6;
+    --r: 12px;
+    --r-lg: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, system-ui, sans-serif;
+    background: var(--bg); color: var(--ink);
+    line-height: 1.7; font-size: 15px;
+    min-height: 100vh;
+  }
+  .hero {
+    background: linear-gradient(160deg, var(--brand), var(--brand-700));
+    color: #fff; padding: 38px 20px 30px; text-align: center;
+  }
+  .mark {
+    width: 62px; height: 62px; border-radius: 19px;
+    background: #fff; color: var(--brand);
+    display: grid; place-items: center;
+    font-size: 30px; font-weight: 900; margin: 0 auto 12px;
+  }
+  .hero h1 { font-size: 24px; font-weight: 900; }
+  .hero p { font-size: 14px; opacity: .88; margin-top: 4px; }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r); padding: 16px; margin-top: 14px;
+  }
+  .verdict {
+    border-radius: var(--r-lg); padding: 22px 18px; text-align: center;
+    margin-top: -18px; position: relative; z-index: 2;
+    box-shadow: 0 12px 32px rgba(16,32,26,.14);
+    background: var(--surface); border: 2px solid var(--line);
+  }
+  .verdict.ok      { border-color: var(--success); background: var(--success-50); }
+  .verdict.warn    { border-color: var(--gold);    background: var(--gold-50); }
+  .verdict.testing { border-color: var(--line); }
+  .verdict .icon { font-size: 46px; line-height: 1; }
+  .verdict .title { font-size: 20px; font-weight: 900; margin-top: 8px; }
+  .verdict .sub { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+
+  h2 { font-size: 15px; font-weight: 800; margin-bottom: 10px; }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+  .row .value { font-weight: 800; font-size: 14px; direction: ltr; }
+  .value.good { color: var(--success); }
+  .value.mid  { color: #8A5A00; }
+  .value.bad  { color: var(--danger); }
+  .value.wait { color: var(--ink-3); font-weight: 600; }
+
+  .note {
+    background: var(--brand-50); border-radius: var(--r);
+    padding: 14px; margin-top: 14px; font-size: 13.5px; color: var(--ink-2);
+  }
+  .note b { color: var(--ink); }
+
+  .btn {
+    display: block; width: 100%; margin-top: 16px;
+    background: var(--brand); color: #fff; border: 0;
+    padding: 14px; border-radius: var(--r);
+    font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer;
+  }
+  .btn:active { transform: scale(.99); }
+  .btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+
+  .summary {
+    margin-top: 14px; background: #111C18; color: #EAF0ED;
+    border-radius: var(--r); padding: 14px;
+    font-family: ui-monospace, Consolas, monospace; font-size: 12.5px;
+    direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-all;
+  }
+  .foot { text-align: center; color: var(--ink-3); font-size: 12.5px; margin-top: 22px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="mark">س</div>
+  <h1>سوق الرقة</h1>
+  <p>اختبار الوصول إلى الخادم</p>
+</div>
+
+<div class="wrap">
+
+  <div id="verdict" class="verdict testing">
+    <div class="icon" id="v-icon">⏳</div>
+    <div class="title" id="v-title">جاري الفحص…</div>
+    <div class="sub" id="v-sub">لا تغلق الصفحة، تستغرق ثوانيَ قليلة</div>
+  </div>
+
+  <div class="card">
+    <h2>📊 نتائج الفحص</h2>
+    <div class="row">
+      <span class="label">🌐 فتح الصفحة</span>
+      <span class="value good" id="r-page">✓ نجح</span>
+    </div>
+    <div class="row">
+      <span class="label">🔌 الاتصال بالخادم</span>
+      <span class="value wait" id="r-api">…</span>
+    </div>
+    <div class="row">
+      <span class="label">⚡ سرعة الاستجابة</span>
+      <span class="value wait" id="r-latency">…</span>
+    </div>
+    <div class="row">
+      <span class="label">📥 سرعة التحميل</span>
+      <span class="value wait" id="r-speed">…</span>
+    </div>
+    <div class="row">
+      <span class="label">🖼️ تحميل الصور</span>
+      <span class="value wait" id="r-image">…</span>
+    </div>
+  </div>
+
+  <div class="note" id="note">
+    <b>ما هذه الصفحة؟</b><br>
+    نحن نبني تطبيق «سوق الرقة» لبيع وشراء الأغراض داخل المدينة، وخادمه في ألمانيا.
+    هذه الصفحة تتأكّد أن الخادم يفتح من داخل سوريا وبأي سرعة.
+  </div>
+
+  <button class="btn" id="copy">📋 انسخ النتيجة وأرسلها</button>
+  <button class="btn ghost" id="again">🔄 أعد الفحص</button>
+
+  <div class="summary" id="summary" hidden></div>
+
+  <div class="foot">سوق الرقة · صفحة اختبار مؤقتة</div>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const results = {};
+
+  function set(id, text, cls) {
+    const el = $(id);
+    el.textContent = text;
+    el.className = 'value ' + (cls || '');
+  }
+
+  function grade(ms, good, mid) {
+    return ms <= good ? 'good' : ms <= mid ? 'mid' : 'bad';
+  }
+
+  async function timed(url, options) {
+    const started = performance.now();
+    const response = await fetch(url, Object.assign({ cache: 'no-store' }, options || {}));
+    const body = await response.arrayBuffer();
+    return { ms: Math.round(performance.now() - started), ok: response.ok, bytes: body.byteLength };
+  }
+
+  async function run() {
+    $('verdict').className = 'verdict testing';
+    $('v-icon').textContent = '⏳';
+    $('v-title').textContent = 'جاري الفحص…';
+    $('v-sub').textContent = 'لا تغلق الصفحة، تستغرق ثوانيَ قليلة';
+    ['r-api', 'r-latency', 'r-speed', 'r-image'].forEach((id) => set(id, '…', 'wait'));
+    $('summary').hidden = true;
+
+    // 1) هل يستجيب الخادم أصلًا؟
+    let reachable = false;
+    try {
+      const health = await timed('/api/v1/health');
+      reachable = health.ok;
+      set('r-api', health.ok ? '✓ نجح' : '✗ فشل', health.ok ? 'good' : 'bad');
+      results.api = health.ok;
+    } catch (e) {
+      set('r-api', '✗ فشل', 'bad');
+      results.api = false;
+    }
+
+    // 2) زمن الذهاب والإياب — ثلاث محاولات ونأخذ الأفضل
+    if (reachable) {
+      const times = [];
+      for (let i = 0; i < 3; i += 1) {
+        try {
+          times.push((await timed('/api/v1/health?t=' + Date.now())).ms);
+        } catch (e) { /* تجاهل */ }
+      }
+      if (times.length) {
+        const best = Math.min.apply(null, times);
+        results.latency = best;
+        set('r-latency', best + ' ms', grade(best, 250, 600));
+      } else {
+        set('r-latency', '✗ فشل', 'bad');
+      }
+    }
+
+    // 3) سرعة التحميل — ملف اختبار
+    if (reachable) {
+      try {
+        const test = await timed('/speedtest.bin?t=' + Date.now());
+        const kbps = Math.round((test.bytes / 1024) / (test.ms / 1000));
+        results.speedKBps = kbps;
+        set('r-speed', kbps + ' KB/s', kbps >= 300 ? 'good' : kbps >= 80 ? 'mid' : 'bad');
+      } catch (e) {
+        set('r-speed', '✗ فشل', 'bad');
+      }
+    }
+
+    // 4) الصور تُخدَم من مسار مختلف — نتأكّد أنه غير محجوب
+    if (reachable) {
+      try {
+        const img = await timed('/api/v1/app-config?t=' + Date.now());
+        set('r-image', img.ok ? '✓ نجح' : '✗ فشل', img.ok ? 'good' : 'bad');
+        results.media = img.ok;
+      } catch (e) {
+        set('r-image', '✗ فشل', 'bad');
+      }
+    }
+
+    verdict();
+  }
+
+  function verdict() {
+    const v = $('verdict');
+    if (!results.api) {
+      v.className = 'verdict warn';
+      $('v-icon').textContent = '⚠️';
+      $('v-title').textContent = 'الصفحة فتحت، لكن الخادم لم يستجب';
+      $('v-sub').textContent = 'أرسل لنا النتيجة من الزر بالأسفل';
+      return;
+    }
+    const slow = (results.latency || 0) > 600 || (results.speedKBps || 0) < 80;
+    v.className = 'verdict ' + (slow ? 'warn' : 'ok');
+    $('v-icon').textContent = slow ? '🐢' : '✅';
+    $('v-title').textContent = slow ? 'يعمل — لكنه بطيء' : 'ممتاز! كل شيء يعمل';
+    $('v-sub').textContent = slow
+      ? 'الاتصال يصل لكن السرعة ضعيفة. أرسل لنا النتيجة.'
+      : 'الخادم يفتح من عندك بسرعة جيدة. أرسل لنا النتيجة.';
+  }
+
+  function summaryText() {
+    return [
+      'سوق الرقة — نتيجة اختبار الاتصال',
+      'الوقت: ' + new Date().toLocaleString('en-GB'),
+      'الخادم: ' + location.host,
+      'الاتصال: ' + (results.api ? 'نجح' : 'فشل'),
+      'زمن الاستجابة: ' + (results.latency != null ? results.latency + ' ms' : 'لا يوجد'),
+      'سرعة التحميل: ' + (results.speedKBps != null ? results.speedKBps + ' KB/s' : 'لا يوجد'),
+      'الجهاز: ' + navigator.userAgent,
+    ].join('\n');
+  }
+
+  $('copy').addEventListener('click', async function () {
+    const text = summaryText();
+    $('summary').textContent = text;
+    $('summary').hidden = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      this.textContent = '✅ نُسخت — الصقها في واتساب';
+    } catch (e) {
+      this.textContent = '👇 انسخ النص بالأسفل يدويًا';
+    }
+  });
+
+  $('again').addEventListener('click', run);
+
+  run();
+})();
+</script>
+</body>
+</html>

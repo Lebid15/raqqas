@@ -7,7 +7,12 @@
 /* ---------- 1. المتغيّرات (Design Tokens) ---------- */
 :root {
   /* الألوان الأساسية */
+  /* --brand      : خلفيات (الترويسة · الأزرار · زر «أضف إعلان»)
+     --brand-text : نصوص (السعر · التبويب النشط · الروابط)
+     متطابقان في الوضع النهاري، ويفترقان في الليلي: لون واحد لا يمكن أن يكون
+     مقروءًا كنصّ فوق بطاقة داكنة وأن يحمل نصًّا أبيض فوقه في الوقت نفسه. */
   --brand:        #0B7A5D;
+  --brand-text:   #0B7A5D;
   --brand-600:    #096A51;
   --brand-700:    #075642;
   --brand-50:     #E6F4EF;
@@ -56,6 +61,7 @@
 /* الوضع الليلي */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --brand-text:#12A87E;
     --bg:        #0F1513;
     --surface:   #172220;
     --surface-2: #1D2A27;
@@ -75,6 +81,7 @@
   }
 }
 :root[data-theme="dark"] {
+  --brand-text:#12A87E;
   --bg:#0F1513; --surface:#172220; --surface-2:#1D2A27;
   --ink:#EAF0ED; --ink-2:#A9B5B0; --ink-3:#77837E; --line:#26332F;
   --brand-50:#12312A; --brand-100:#17463B; --gold-50:#3A2A0E;
@@ -115,7 +122,7 @@ ul, ol { list-style: none; }
   gap: 10px; margin-bottom: 12px;
 }
 .section-title { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 7px; }
-.section-more { font-size: 13px; font-weight: 700; color: var(--brand); }
+.section-more { font-size: 13px; font-weight: 700; color: var(--brand-text); }
 
 /* ---------- 4. الترويسة ---------- */
 .header {
@@ -238,7 +245,7 @@ ul, ol { list-style: none; }
   gap: 3px; height: 100%; color: var(--ink-3); font-size: 10.5px; font-weight: 700;
 }
 .nav-item .ni-icon { font-size: 20px; line-height: 1; }
-.nav-item.is-active { color: var(--brand); }
+.nav-item.is-active { color: var(--brand-text); }
 .nav-item.is-active .ni-icon { transform: translateY(-1px); }
 
 /* زر «أضف إعلان» — بارز جدًا */
@@ -255,7 +262,7 @@ ul, ol { list-style: none; }
 .nav-fab .fab:active { transform: translateX(50%) scale(.93); }
 .nav-fab .fab-label {
   position: absolute; bottom: 9px; inset-inline-start: 0; width: 100%;
-  text-align: center; font-size: 10.5px; font-weight: 800; color: var(--brand);
+  text-align: center; font-size: 10.5px; font-weight: 800; color: var(--brand-text);
 }
 
 /* ---------- 6. الأقسام ---------- */
@@ -300,7 +307,7 @@ ul, ol { list-style: none; }
   padding: 6px 13px; border-radius: var(--r-full);
   font-size: 12.5px; font-weight: 700; color: var(--ink-2);
 }
-.sub-chip:hover { background: var(--brand-50); color: var(--brand); border-color: var(--brand-100); }
+.sub-chip:hover { background: var(--brand-50); color: var(--brand-text); border-color: var(--brand-100); }
 
 /* ---------- 7. بطاقة الإعلان ---------- */
 .ads-grid {
@@ -349,7 +356,7 @@ ul, ol { list-style: none; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; min-height: 39px;
 }
-.ad-price { font-size: 15px; font-weight: 900; color: var(--brand); }
+.ad-price { font-size: 15px; font-weight: 900; color: var(--brand-text); }
 .ad-price .cur { font-size: 11.5px; font-weight: 700; }
 .ad-meta {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -399,7 +406,7 @@ ul, ol { list-style: none; }
 .btn-danger  { background: var(--danger); color: #fff; }
 .btn-success { background: var(--success); color: #fff; }
 .btn-ghost   { background: var(--surface); color: var(--ink); border-color: var(--line); }
-.btn-soft    { background: var(--brand-50); color: var(--brand); }
+.btn-soft    { background: var(--brand-50); color: var(--brand-text); }
 .btn-block   { width: 100%; }
 .btn-sm      { padding: 7px 12px; font-size: 12.5px; border-radius: var(--r-sm); }
 .btn-lg      { padding: 14px 22px; font-size: 16px; }
@@ -445,7 +452,7 @@ ul, ol { list-style: none; }
   font-size: 14px; font-weight: 700; cursor: pointer;
 }
 .choice input:checked + span {
-  background: var(--brand-50); border-color: var(--brand); color: var(--brand);
+  background: var(--brand-50); border-color: var(--brand); color: var(--brand-text);
 }
 .choice input:focus-visible + span { outline: 3px solid var(--brand); outline-offset: 2px; }
 
@@ -457,7 +464,7 @@ ul, ol { list-style: none; }
   display: grid; place-items: center; color: var(--ink-3);
   font-size: 11px; font-weight: 700; text-align: center; gap: 2px;
 }
-.upload-slot.is-add { border-color: var(--brand-100); background: var(--brand-50); color: var(--brand); }
+.upload-slot.is-add { border-color: var(--brand-100); background: var(--brand-50); color: var(--brand-text); }
 .upload-slot .u-icon { font-size: 20px; }
 .upload-thumb { position: relative; aspect-ratio: 1; border-radius: var(--r-sm); overflow: hidden; }
 .upload-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -540,7 +547,7 @@ ul, ol { list-style: none; }
 }
 
 .listing-price {
-  font-size: 25px; font-weight: 900; color: var(--brand); line-height: 1.2;
+  font-size: 25px; font-weight: 900; color: var(--brand-text); line-height: 1.2;
 }
 .listing-price .cur { font-size: 15px; font-weight: 700; }
 .listing-title { font-size: 19px; font-weight: 800; line-height: 1.45; margin: 4px 0 8px; }
@@ -565,7 +572,7 @@ ul, ol { list-style: none; }
 }
 .avatar {
   width: 46px; height: 46px; border-radius: var(--r-full);
-  background: var(--brand-50); color: var(--brand);
+  background: var(--brand-50); color: var(--brand-text);
   display: grid; place-items: center; font-size: 18px; font-weight: 900; flex-shrink: 0;
 }
 .avatar-sm { width: 38px; height: 38px; font-size: 15px; }
@@ -605,7 +612,7 @@ body.has-action-bar { padding-bottom: 84px; }
 .conv-top { display: flex; align-items: center; gap: 8px; }
 .conv-name { font-size: 14px; font-weight: 800; flex: 1; }
 .conv-time { font-size: 11px; color: var(--ink-3); font-weight: 600; }
-.conv-ad { font-size: 11.5px; color: var(--brand); font-weight: 700; }
+.conv-ad { font-size: 11.5px; color: var(--brand-text); font-weight: 700; }
 .conv-last {
   font-size: 12.5px; color: var(--ink-3); font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -625,7 +632,7 @@ body.has-action-bar { padding-bottom: 84px; }
 }
 .chat-ad img { width: 42px; height: 42px; border-radius: var(--r-sm); object-fit: cover; }
 .chat-ad-title { font-size: 12.5px; font-weight: 700; line-height: 1.4; }
-.chat-ad-price { font-size: 12.5px; font-weight: 800; color: var(--brand); }
+.chat-ad-price { font-size: 12.5px; font-weight: 800; color: var(--brand-text); }
 
 .chat-body {
   padding: 16px 14px 12px; display: flex; flex-direction: column; gap: 9px;
@@ -679,7 +686,7 @@ body.has-action-bar { padding-bottom: 84px; }
 }
 .pstat { padding: 12px 6px; text-align: center; }
 .pstat + .pstat { border-inline-start: 1px solid var(--line); }
-.pstat-num { font-size: 19px; font-weight: 900; color: var(--brand); }
+.pstat-num { font-size: 19px; font-weight: 900; color: var(--brand-text); }
 .pstat-lbl { font-size: 11.5px; color: var(--ink-3); font-weight: 700; }
 
 .menu { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
@@ -695,7 +702,7 @@ body.has-action-bar { padding-bottom: 84px; }
 .menu-label { flex: 1; font-size: 14.5px; font-weight: 700; }
 .menu-arrow { color: var(--ink-3); font-size: 15px; }
 .menu-count {
-  background: var(--brand-50); color: var(--brand); font-size: 11.5px; font-weight: 800;
+  background: var(--brand-50); color: var(--brand-text); font-size: 11.5px; font-weight: 800;
   padding: 2px 9px; border-radius: var(--r-full);
 }
 .menu-item.is-danger .menu-icon { background: var(--danger-50); }
@@ -712,12 +719,12 @@ body.has-action-bar { padding-bottom: 84px; }
   color: var(--ink-3); border-bottom: 2.5px solid transparent; margin-bottom: -1px;
   display: inline-flex; align-items: center; gap: 6px;
 }
-.tab.is-active { color: var(--brand); border-color: var(--brand); }
+.tab.is-active { color: var(--brand-text); border-color: var(--brand); }
 .tab-count {
   background: var(--bg); color: var(--ink-2); font-size: 11px; font-weight: 800;
   padding: 1px 7px; border-radius: var(--r-full);
 }
-.tab.is-active .tab-count { background: var(--brand-50); color: var(--brand); }
+.tab.is-active .tab-count { background: var(--brand-50); color: var(--brand-text); }
 
 /* حالات الإعلان */
 .status {
@@ -849,7 +856,7 @@ tr:hover td { background: var(--surface-2); }
 
 .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border-radius: var(--r); padding: 4px; margin-bottom: 20px; }
 .seg button { padding: 9px; border-radius: var(--r-sm); font-size: 13.5px; font-weight: 800; color: var(--ink-3); }
-.seg button.is-active { background: var(--surface); color: var(--brand); box-shadow: var(--sh-sm); }
+.seg button.is-active { background: var(--surface); color: var(--brand-text); box-shadow: var(--sh-sm); }
 
 .phone-input { display: flex; gap: 8px; direction: ltr; }
 .phone-cc {
@@ -882,7 +889,7 @@ tr:hover td { background: var(--surface-2); }
 .ltr   { direction: ltr; }
 .hidden{ display: none !important; }
 .danger{ color: var(--danger); }
-.brand-c { color: var(--brand); }
+.brand-c { color: var(--brand-text); }
 
 /* شريط الصفحة التجريبية */
 .demo-bar {
