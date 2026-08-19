@@ -131,3 +131,110 @@ def check_phone(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
     return Response({"available": not User.objects.filter(phone=phone).exists()})
+
+
+# ------------------------------------------------------------------ حذف الحساب
+
+
+@extend_schema(summary="حذف الحساب نهائيًا (من داخل التطبيق)")
+@api_view(["DELETE", "POST"])
+@permission_classes([IsAuthenticated])
+@throttle_classes([AuthThrottle])
+def delete_my_account(request):
+    """
+    DELETE /auth/me/delete — المسار داخل التطبيق.
+
+    نطلب كلمة المرور رغم أن المستخدم مسجَّل الدخول: الحذف لا رجعة فيه،
+    وجهاز مفتوح في يد غير صاحبه يجب ألّا يكفي لمحو حساب كامل.
+    """
+    from .deletion import delete_user_account
+
+    password = str(request.data.get("password") or "")
+    if not request.user.check_password(password):
+        return Response(
+            {"error": {"code": "invalid_password", "message": "كلمة المرور غير صحيحة."}},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    result = delete_user_account(request.user, reason="user_request")
+    return Response(result)
+
+
+@extend_schema(summary="حذف الحساب من صفحة الويب العامة")
+@api_view(["POST"])
+@permission_classes([AllowAny])
+@throttle_classes([AuthThrottle])
+def delete_account_web(request):
+    """
+    POST /auth/delete-account — المسار العام الذي تشترطه Google Play لمن
+    لم يعد التطبيق مثبَّتًا عنده. الهوية تُثبت بالرقم وكلمة المرور، فلا
+    يستطيع أحد حذف حساب غيره.
+    """
+    from .deletion import delete_user_account
+
+    serializer = LoginSerializer(data=request.data, context={"request": request})
+    serializer.is_valid(raise_exception=True)
+    user = serializer.validated_data["user"]
+    result = delete_user_account(user, reason="web_request")
+    return Response(result)
+
+
+# ------------------------------------------------------------------ حظر المعلنين
+
+
+@extend_schema(summary="قائمة المحظورين / حظر معلن")
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def blocks(request):
+    """
+    GET  /auth/blocks            قائمة من حظرتهم
+    POST /auth/blocks {user_id}  حظر
+    """
+    from .models import Block
+
+    if request.method == "GET":
+        rows = (
+            Block.objects.filter(blocker=request.user)
+            .select_related("blocked")
+            .order_by("-created_at")
+        )
+        return Response({
+            "results": [
+                {"user_id": row.blocked_id, "name": row.blocked.name,
+                 "initial": row.blocked.initial, "created_at": row.created_at}
+                for row in rows
+            ]
+        })
+
+    try:
+        target_id = int(request.data.get("user_id"))
+    except (TypeError, ValueError):
+        return Response(
+            {"error": {"code": "validation_error", "message": "رقم المستخدم مطلوب."}},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if target_id == request.user.pk:
+        return Response(
+            {"error": {"code": "validation_error", "message": "لا يمكنك حظر نفسك."}},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not User.objects.filter(pk=target_id).exists():
+        return Response(
+            {"error": {"code": "not_found", "message": "المستخدم غير موجود."}},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    Block.objects.get_or_create(blocker=request.user, blocked_id=target_id)
+    return Response({"blocked": True})
+
+
+@extend_schema(summary="رفع الحظر عن معلن")
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def unblock(request, user_id: int):
+    """DELETE /auth/blocks/{user_id} — رقم المستخدم في المسار لا في الجسم، لأن
+    جسم طلب DELETE لا تنقله كل العملاء والوسائط بشكل موثوق."""
+    from .models import Block
+
+    Block.objects.filter(blocker=request.user, blocked_id=user_id).delete()
+    return Response({"blocked": False})

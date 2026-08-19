@@ -155,3 +155,77 @@ class Device(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.name} — {self.get_platform_display()}"
+
+
+class Block(models.Model):
+    """
+    حظر معلن — متطلّب صريح في سياسة المحتوى من المستخدمين (UGC) لدى Google Play:
+    لا يكفي الإبلاغ عن إعلان، يجب أن يستطيع المستخدم إخفاء شخص بعينه عن نفسه.
+
+    الحظر **من طرف واحد**: يخفي إعلانات المحظور عن الحاظر فقط، ولا يعلم
+    المحظور بشيء ولا يتغيّر شيء عند غيره. هذا أقلّ ضررًا من الحظر المتبادل
+    وأبعد عن أن يتحوّل إلى أداة مضايقة.
+    """
+
+    blocker = models.ForeignKey(
+        User, verbose_name="الحاظر", on_delete=models.CASCADE, related_name="blocks_made"
+    )
+    blocked = models.ForeignKey(
+        User, verbose_name="المحظور", on_delete=models.CASCADE, related_name="blocks_received"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "حظر"
+        verbose_name_plural = "الحظر"
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["blocker", "blocked"], name="unique_block"),
+            models.CheckConstraint(
+                condition=~models.Q(blocker=models.F("blocked")), name="no_self_block"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.blocker_id} ⇥ {self.blocked_id}"
+
+    @staticmethod
+    def blocked_ids_for(user) -> set[int]:
+        """أرقام من حظرهم هذا المستخدم — تُستعمل لتصفية كل قوائم الإعلانات."""
+        if not user or not getattr(user, "is_authenticated", False):
+            return set()
+        return set(
+            Block.objects.filter(blocker=user).values_list("blocked_id", flat=True)
+        )
+
+
+class DeletedAccount(models.Model):
+    """
+    أثر مجهول الهوية لحساب محذوف.
+
+    نحذف الحساب حذفًا تامًّا (لا «تعطيل») كما تشترط سياسة حذف الحسابات في
+    Google Play — ولا نحتفظ بالاسم ولا بالرقم. نبقي بصمة الرقم (hash) وحدها
+    ليمنع النظام تكرار الاستغلال: من يُحذف حسابه بعد سلسلة بلاغات لا يعود
+    بنفس الرقم في نفس اللحظة كأن شيئًا لم يكن. البصمة لا يمكن ردّها إلى رقم.
+    """
+
+    phone_hash = models.CharField("بصمة الرقم", max_length=64, db_index=True)
+    reason = models.CharField("السبب", max_length=32, default="user_request")
+    listings_removed = models.PositiveIntegerField("إعلانات حُذفت", default=0)
+    deleted_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "حساب محذوف"
+        verbose_name_plural = "الحسابات المحذوفة"
+        ordering = ["-deleted_at"]
+
+    def __str__(self) -> str:
+        return f"{self.phone_hash[:8]}… — {self.deleted_at:%Y-%m-%d}"
+
+    @staticmethod
+    def hash_phone(phone: str) -> str:
+        import hashlib
+
+        from django.conf import settings
+
+        return hashlib.sha256(f"{settings.SECRET_KEY}:{phone}".encode()).hexdigest()

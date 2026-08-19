@@ -20,6 +20,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 
+from apps.accounts.models import Block
 from apps.core.images import process_upload
 from apps.core.models import AdminLog, AppConfig
 from apps.core.pagination import DefaultPagination
@@ -69,6 +70,12 @@ class ListingViewSet(viewsets.ModelViewSet):
             queryset = queryset.visible_to(user if self.action == "retrieve" else None)
         else:
             queryset = queryset.exclude(status=Listing.Status.DELETED)
+
+        if self.action in {"list", "retrieve"}:
+            # إعلانات من حظرهم المستخدم لا تظهر له — سياسة المحتوى من المستخدمين
+            blocked = Block.blocked_ids_for(user)
+            if blocked:
+                queryset = queryset.exclude(user_id__in=blocked)
 
         if self.action == "list":
             # الترتيب الافتراضي: المميّز أولًا ثم الأحدث
@@ -466,6 +473,9 @@ def home_summary(request):
     )
 
     base = Listing.objects.published().with_relations()
+    blocked = Block.blocked_ids_for(request.user)
+    if blocked:
+        base = base.exclude(user_id__in=blocked)
     favorite_ids = set()
     if request.user and request.user.is_authenticated:
         favorite_ids = set(

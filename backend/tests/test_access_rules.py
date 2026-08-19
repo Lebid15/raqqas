@@ -63,7 +63,8 @@ class GuestBrowsingTests(BaseAPITest):
         response = self.guest.get("/api/v1/app-config")
         self.assertEqual(response.status_code, 200)
         self.assertIn("theme", response.data)
-        self.assertEqual(response.data["currency"]["code"], "SYP")
+        self.assertEqual(response.data["currency"]["base"], "USD")
+        self.assertIn("catalogue", response.data["currency"])
 
     def test_app_config_returns_304_when_unchanged(self):
         first = self.guest.get("/api/v1/app-config")

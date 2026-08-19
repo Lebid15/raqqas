@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from . import defaults
+from . import defaults, money
 from .models import AppConfig, DownloadEvent
 
 
@@ -21,12 +21,13 @@ class AppConfigSerializer(serializers.ModelSerializer):
     features = serializers.SerializerMethodField()
     limits = serializers.SerializerMethodField()
     support = serializers.SerializerMethodField()
+    legal = serializers.SerializerMethodField()
 
     class Meta:
         model = AppConfig
         fields = [
             "version", "brand", "theme", "currency", "languages",
-            "landing", "app", "features", "limits", "support",
+            "landing", "app", "features", "limits", "support", "legal",
         ]
 
     # ------------------------------------------------------------------
@@ -69,17 +70,23 @@ class AppConfigSerializer(serializers.ModelSerializer):
         }
 
     def get_currency(self, obj: AppConfig) -> dict:
+        """
+        كل ما يحتاجه العميل ليعرض أي سعر بأي عملة — **بلا طلب إضافي**.
+
+        نرسل الكتالوج وجدول الأسعار كاملين ليجري التطبيق التحويل عنده. البديل
+        (تحويل على الخادم) كان يعني إعادة تحميل كل قائمة عند كل تبديل عملة،
+        على إنترنت ضعيف، مقابل ضربَي قسمة يقوم بهما الجوال في أقل من مللي ثانية.
+        """
         lang = self._lang()
+        enabled = obj.enabled_currencies or list(money.CURRENCY_CODES)
         return {
-            "code": obj.currency_code,
-            "symbol": obj.currency_symbol_for(lang),
-            "symbols": {
-                "ar": obj.currency_symbol,
-                "tr": obj.currency_symbol_tr or obj.currency_symbol,
-                "en": obj.currency_symbol_en or obj.currency_symbol,
-            },
-            "position": obj.currency_position,
-            "decimals": obj.currency_decimals,
+            "base": obj.base_currency,
+            "default": obj.default_currency,
+            "enabled": enabled,
+            "catalogue": [c for c in money.catalogue(lang) if c["code"] in enabled],
+            # جدول فارغ = لم يضبط الأدمن الأسعار بعد ⇒ لا يُعرض أي تحويل تقريبي
+            "rates": money.clean_rates(obj.rates),
+            "rates_updated_at": obj.rates_updated_at,
         }
 
     def get_languages(self, obj: AppConfig) -> dict:
@@ -108,6 +115,7 @@ class AppConfigSerializer(serializers.ModelSerializer):
         return {
             "latest_version": obj.latest_version,
             "min_version": obj.min_version,
+            "store_url": obj.store_url,
             "apk_url": obj.apk_url,
             "apk_sha256": obj.apk_sha256,
             "apk_size_mb": obj.apk_size_mb,
@@ -127,6 +135,24 @@ class AppConfigSerializer(serializers.ModelSerializer):
 
     def get_support(self, obj: AppConfig) -> dict:
         return {"whatsapp": obj.support_whatsapp, "email": obj.support_email}
+
+    def get_legal(self, obj: AppConfig) -> dict:
+        """
+        روابط الوثائق القانونية.
+
+        Google Play يشترط أن يصل المستخدم إلى سياسة الخصوصية وإلى طريقة حذف
+        حسابه **من داخل التطبيق** لا من المتجر فقط. نبنيها من عنوان الطلب
+        نفسه فلا تحتاج ضبطًا يدويًا ولا تتعطّل إن تغيّر النطاق.
+        """
+        request = self.context.get("request")
+        paths = {
+            "privacy": "/privacy",
+            "terms": "/terms",
+            "delete_account": "/delete-account",
+        }
+        if request is None:
+            return paths
+        return {key: request.build_absolute_uri(path) for key, path in paths.items()}
 
     def _lang(self) -> str:
         request = self.context.get("request")
@@ -169,17 +195,60 @@ class AppConfigWriteSerializer(serializers.ModelSerializer):
             "brand_mark", "logo", "launcher_icon",
             "theme_light", "theme_dark", "font_family", "font_scale",
             "radius", "shadows", "density", "dark_mode_enabled",
-            "currency_code", "currency_symbol", "currency_symbol_tr",
-            "currency_symbol_en", "currency_position", "currency_decimals",
+            "default_currency", "enabled_currencies", "rates",
             "default_language", "supported_languages",
             "landing_ar", "landing_tr", "landing_en", "landing_image",
-            "apk_url", "apk_sha256", "apk_size_mb",
+            "store_url", "apk_url", "apk_sha256", "apk_size_mb",
             "latest_version", "min_version",
             "update_message_ar", "update_message_tr", "update_message_en",
             "features", "review_mode", "review_threshold",
             "listing_expiry_days", "daily_listing_limit", "max_photos_per_listing",
             "support_whatsapp", "support_email",
         ]
+
+    def validate_rates(self, value):
+        """
+        سعر الصرف مدخل مالي — نفحصه بصرامة ونشرح الخطأ، ولا نبتلع قيمة سيئة.
+
+        `clean_rates` تتجاهل الفاسد بصمت (وهذا صحيح عند القراءة من قاعدة
+        البيانات)، لكن الأدمن الذي كتب «14,500» بفاصلة يستحق أن يُقال له ذلك
+        بدل أن يحفظ ويظنّ أنه نجح ثم يكتشف أن السعر لم يتغيّر.
+        """
+        if not isinstance(value, dict):
+            raise serializers.ValidationError("أسعار الصرف يجب أن تكون خريطة {العملة: السعر}.")
+        errors = {}
+        cleaned = {}
+        for code, raw in value.items():
+            if code == money.BASE_CURRENCY:
+                continue  # 1 دولار = 1 دولار — ليست بيانات يدخلها أحد
+            if not money.is_valid(code):
+                errors[code] = "عملة غير معروفة."
+                continue
+            try:
+                number = float(str(raw).replace(",", "").strip())
+            except (TypeError, ValueError):
+                errors[code] = "اكتب رقمًا بلا فواصل، مثل 14500 أو 35.2"
+                continue
+            if number <= 0:
+                errors[code] = "السعر يجب أن يكون أكبر من صفر."
+                continue
+            cleaned[code] = number
+        if errors:
+            raise serializers.ValidationError(errors)
+        return cleaned
+
+    def validate_enabled_currencies(self, value):
+        if not isinstance(value, list) or not value:
+            raise serializers.ValidationError("اختر عملة واحدة على الأقل.")
+        unknown = [c for c in value if not money.is_valid(c)]
+        if unknown:
+            raise serializers.ValidationError(f"عملات غير معروفة: {', '.join(unknown)}")
+        return value
+
+    def validate_default_currency(self, value):
+        if not money.is_valid(value):
+            raise serializers.ValidationError("عملة غير معروفة.")
+        return value
 
     def validate_app_name_ar(self, value):
         value = " ".join(value.split())

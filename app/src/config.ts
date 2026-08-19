@@ -60,6 +60,7 @@ export const STORAGE = {
   tokens: 'souq.tokens',
   user: 'souq.user',
   language: 'souq.language',
+  currency: 'souq.currency',
   themeMode: 'souq.themeMode',
   appConfig: 'souq.appConfig',
   appConfigEtag: 'souq.appConfigEtag',
@@ -78,3 +79,31 @@ export const REQUEST_TIMEOUT_MS = 20000;
  * ألمانيا — الرفع يقطع في منتصفه، والمستخدم يظنّ أن إعلانه نُشر بصوره.
  */
 export const UPLOAD_TIMEOUT_MS = 120000;
+
+/**
+ * قناة التوزيع — من أين حصل المستخدم على هذه النسخة.
+ *
+ * لهذا المتغيّر سبب واحد ثقيل: **سياسة Google Play تمنع منعًا باتًّا** أن
+ * يحدّث التطبيق نفسه بتنزيل ملف APK من خارج المتجر (Device and Network Abuse).
+ * النسخة التي نرفعها إلى المتجر يجب ألّا تحتوي زرّ «حمّل التحديث» أصلًا —
+ * لا أن نخفيه بشرط في الخادم، فالمراجع يقرأ الكود لا الإعدادات فقط.
+ *
+ * لذلك نحقنه وقت البناء:
+ *   EXPO_PUBLIC_DISTRIBUTION=play    ← الحزمة المرفوعة إلى Google Play
+ *   EXPO_PUBLIC_DISTRIBUTION=direct  ← ملف APK المنشور على موقعنا
+ *
+ * والقيمة الافتراضية `play` عمدًا: لو نُسي المتغيّر في بناء ما، فالخطأ يقع
+ * في الاتجاه الآمن (تطبيق يحيل إلى المتجر) لا في اتجاه المخالفة.
+ */
+export type Distribution = 'play' | 'direct';
+
+export const DISTRIBUTION: Distribution =
+  process.env.EXPO_PUBLIC_DISTRIBUTION === 'direct' ? 'direct' : 'play';
+
+/** هل يُسمح لهذه النسخة بعرض تنزيل APK مباشر؟ */
+export const CAN_DOWNLOAD_APK = DISTRIBUTION === 'direct';
+
+/** معرّف الحزمة على أندرويد — منه نبني رابط المتجر حين لا يضبطه الأدمن. */
+export const ANDROID_PACKAGE = 'com.souqraqqa.app';
+
+export const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${ANDROID_PACKAGE}`;

@@ -46,6 +46,7 @@ const tr: Dictionary = {
     views: 'görüntülenme',
     photo: 'fotoğraf',
     share: 'Paylaş',
+    currency: 'Para birimi',
   },
 
   home: {
@@ -88,6 +89,11 @@ const tr: Dictionary = {
     photosOf: '{total} fotoğraftan {current}.',
     yours: 'Bu senin ilanın',
     edit: 'İlanı düzenle',
+    block: 'İlan sahibini engelle',
+    blockTitle: 'Bu ilan sahibi engellensin mi?',
+    blockText: '{name} kullanıcısının ilanları sana artık gösterilmeyecek. «Hesabım › Engellenenler» bölümünden kaldırabilirsin.',
+    blockDone: 'Engellendi — ilanları sana gösterilmeyecek.',
+    approxHint: 'Son güncellenen kura göre yaklaşık fiyat',
   },
 
   favorites: {
@@ -173,6 +179,8 @@ const tr: Dictionary = {
     photosPartialText: '{total} fotoğraftan {done} tanesi yüklendi. Kalanları tekrar dene.',
     retryPhotos: 'Fotoğrafları tekrar yükle',
     skipPhotos: 'Şimdilik geç',
+    priceCurrency: 'Fiyat para birimi',
+    priceCurrencyHint: 'Fiyatlandırmak istediğin para birimini seç — yazdığın rakam hiç değişmez.',
   },
 
   edit: {
@@ -218,6 +226,20 @@ const tr: Dictionary = {
     version: 'Sürüm {version}',
     stats: { listings: 'ilan', views: 'görüntülenme', favorites: 'kayıt' },
     saved: 'Değişiklikler kaydedildi',
+    privacy: 'Gizlilik politikası',
+    terms: 'Kullanım şartları',
+    blocked: 'Engellenenler',
+    blockedEmpty: 'Kimseyi engellemedin.',
+    blockedEmptyText: 'Engellediğin kişinin ilanları sana gösterilmez ve bundan haberi olmaz.',
+    unblock: 'Engeli kaldır',
+    unblocked: 'Engel kaldırıldı',
+    deleteAccount: 'Hesabımı sil',
+    deleteTitle: 'Hesabı kalıcı olarak sil',
+    deleteWarn: 'Hesabın, tüm ilanların, fotoğrafların ve favorilerin kalıcı olarak silinir. Geri alınamaz ve hiçbir kopya saklanmaz.',
+    deleteConfirmLabel: 'Onaylamak için şifreni yaz',
+    deleteButton: 'Hesabımı kalıcı olarak sil',
+    deleteDone: 'Hesabın silindi. Vakit ayırdığın için teşekkürler.',
+    deleteWeb: 'Uygulama olmadan web üzerinden de silebilirsin:',
   },
 
   myListings: {
@@ -274,6 +296,7 @@ const tr: Dictionary = {
     loginRequiredFavorites: 'Favorilerini hesabına kaydetmek için giriş yap.',
     welcomeUser: 'Hoş geldin {name} 👋',
     loggedOut: 'Çıkış yapıldı',
+    loginRequiredBlock: 'Engellemek için giriş yap.',
   },
 
   update: {
@@ -283,6 +306,7 @@ const tr: Dictionary = {
     later: 'Sonra',
     requiredTitle: 'Devam etmek için güncelle',
     requiredText: 'Bu sürüm artık desteklenmiyor. Yeni sürümü indir.',
+    openStore: 'Mağazayı aç',
   },
 
   errors: {

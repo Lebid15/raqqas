@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useI18n } from '../i18n';
 import { useAppConfig } from '../state/AppConfigContext';
 import { useTheme } from '../theme/ThemeProvider';
+import { OptionList, Sheet } from './Sheet';
 import { IconButton, Txt } from './ui';
 
 /**
@@ -106,6 +107,8 @@ export function Header({
         </View>
 
         {right}
+
+        <CurrencySwitch />
 
         {onNotifications ? (
           <View>
@@ -220,6 +223,65 @@ export function Header({
         </View>
       ) : null}
     </View>
+  );
+}
+
+
+/**
+ * مُبدّل العملة — أيقونة في الترويسة تظهر رمز العملة التي يقرأ بها المستخدم.
+ *
+ * موضعها في الترويسة لا في الإعدادات عن قصد: في سوق تتقلّب فيه العملات
+ * يبدّل المستخدم عملته وهو يتصفّح، لا مرّة واحدة عند التثبيت. والتبديل هنا
+ * فوري بلا أي طلب شبكة — كل الأسعار محسوبة على الجهاز (lib/money.ts).
+ */
+function CurrencySwitch() {
+  const t = useTheme();
+  const { t: text } = useI18n();
+  const { config, currency, setCurrency } = useAppConfig();
+  const [open, setOpen] = React.useState(false);
+
+  const options = config.currency.catalogue;
+  // عملة واحدة متاحة = لا خيار = لا زرّ. زرٌّ لا يفعل شيئًا أسوأ من غيابه.
+  if (options.length < 2) return null;
+
+  const symbol = options.find((c) => c.code === currency)?.symbol ?? currency;
+
+  return (
+    <>
+      <Pressable
+        onPress={() => setOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={text.common.currency}
+        style={({ pressed }) => ({
+          minWidth: 38,
+          height: 34,
+          paddingHorizontal: 9,
+          borderRadius: t.radius.full,
+          backgroundColor: 'rgba(255,255,255,0.16)',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: pressed ? 0.7 : 1,
+        })}
+      >
+        <Txt size={13.5} weight={900} color="#FFFFFF">
+          {symbol}
+        </Txt>
+      </Pressable>
+
+      <Sheet visible={open} title={text.common.currency} onClose={() => setOpen(false)}>
+        <OptionList
+          options={options.map((c) => ({
+            value: c.code,
+            label: `${c.name} · ${c.symbol}`,
+          }))}
+          value={currency}
+          onChange={(value) => {
+            void setCurrency(value);
+            setOpen(false);
+          }}
+        />
+      </Sheet>
+    </>
   );
 }
 

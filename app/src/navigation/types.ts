@@ -12,6 +12,8 @@ export type RootStackParamList = {
   MyListings: undefined;
   Notifications: undefined;
   EditProfile: undefined;
+  Blocked: undefined;
+  DeleteAccount: undefined;
 };
 
 export type TabParamList = {

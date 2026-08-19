@@ -10,7 +10,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
-from . import defaults
+from . import defaults, money
 
 CONFIG_CACHE_KEY = "app_config:v1"
 CONFIG_CACHE_TTL = 300
@@ -52,7 +52,6 @@ class AppConfig(TimeStampedModel):
 
     SHADOWS = [(s, s) for s in defaults.SHADOW_PRESETS]
     DENSITIES = [(d, d) for d in defaults.DENSITY_PRESETS]
-    POSITIONS = [("before", "قبل المبلغ"), ("after", "بعد المبلغ")]
     REVIEW_MODES = [
         ("all", "مراجعة كل إعلان"),
         ("new_users", "مراجعة إعلانات الأعضاء الجدد فقط"),
@@ -95,15 +94,28 @@ class AppConfig(TimeStampedModel):
     density = models.CharField("الكثافة", max_length=12, choices=DENSITIES, default="normal")
     dark_mode_enabled = models.BooleanField("تفعيل الوضع الليلي", default=True)
 
-    # ---------------- العملة (plan2 §6)
-    currency_code = models.CharField("رمز العملة", max_length=8, default="SYP")
-    currency_symbol = models.CharField("العلامة", max_length=8, default="ل.س")
-    currency_symbol_tr = models.CharField("العلامة (تركي)", max_length=8, blank=True)
-    currency_symbol_en = models.CharField("العلامة (إنكليزي)", max_length=8, blank=True)
-    currency_position = models.CharField(
-        "موضع العلامة", max_length=8, choices=POSITIONS, default="after"
+    # ---------------- العملات (تعديل جوهري على plan2 §6)
+    #
+    # لم يعد هناك «عملة واحدة للمتجر». البائع يختار عملة إعلانه فيُحفظ رقمه
+    # كما كتبه، والمشتري يختار العملة التي يقرأ بها، والأدمن يضع بينهما جسر
+    # التحويل فقط: «1 دولار = كم». التفصيل في apps/core/money.py.
+    base_currency = models.CharField(
+        "عملة المحور", max_length=3, default="USD", editable=False,
+        help_text="كل أسعار الصرف تُكتب بصيغة «1 دولار = كم» — والمحور لا يُبدَّل",
     )
-    currency_decimals = models.PositiveSmallIntegerField("عدد الخانات العشرية", default=0)
+    default_currency = models.CharField(
+        "العملة الافتراضية للعرض", max_length=3, default="USD",
+        help_text="ما يقرأ به المستخدم قبل أن يختار عملته",
+    )
+    enabled_currencies = models.JSONField(
+        "العملات المتاحة", default=list, blank=True,
+        help_text="ما يظهر في قائمة العملات — فارغة تعني كل عملات الكتالوج",
+    )
+    rates = models.JSONField(
+        "أسعار الصرف", default=dict, blank=True,
+        help_text="«1 دولار = كم» لكل عملة. فارغ يعني: لا يُعرض تحويل تقريبي إطلاقًا",
+    )
+    rates_updated_at = models.DateTimeField("آخر تحديث للأسعار", null=True, blank=True)
 
     # ---------------- اللغات
     default_language = models.CharField("اللغة الافتراضية", max_length=2, default="ar")
@@ -118,6 +130,10 @@ class AppConfig(TimeStampedModel):
     )
 
     # ---------------- التطبيق والتوزيع (plan2 §7.2)
+    store_url = models.URLField(
+        "رابط المتجر", blank=True,
+        help_text="صفحة التطبيق على Google Play — يستعملها التطبيق للتحديث والمشاركة",
+    )
     apk_url = models.URLField("رابط ملف APK", blank=True)
     apk_sha256 = models.CharField("بصمة الملف", max_length=64, blank=True)
     apk_size_mb = models.FloatField("حجم الملف (ميغا)", default=0)
@@ -177,15 +193,17 @@ class AppConfig(TimeStampedModel):
         if not self.landing_en:
             self.landing_en = defaults.default_landing("en")
 
-        # «ل.س» داخل واجهة إنكليزية يبدو خطأً — نملأ الرمز المعروف لكل لغة
-        # عند الفراغ، ويبقى للأدمن أن يكتب ما يريد فوقه.
-        known = next(
-            (c for c in defaults.KNOWN_CURRENCIES if c["code"] == self.currency_code), None
-        )
-        if known:
-            self.currency_symbol = self.currency_symbol or known["symbol_ar"]
-            self.currency_symbol_tr = self.currency_symbol_tr or known["symbol_tr"]
-            self.currency_symbol_en = self.currency_symbol_en or known["symbol_en"]
+        # العملات: نضمن سلامة المحفوظ هنا لا في الواجهة وحدها. قيمة تالفة في
+        # `rates` تعني سعرًا خاطئًا على شاشة كل مستخدم — وهذا أسوأ بكثير من
+        # رفض الحفظ أو تجاهل قيمة واحدة.
+        self.rates = money.clean_rates(self.rates)
+        allowed = [c for c in (self.enabled_currencies or []) if money.is_valid(c)]
+        self.enabled_currencies = allowed or list(money.CURRENCY_CODES)
+        if not money.is_valid(self.default_currency):
+            self.default_currency = money.BASE_CURRENCY
+        if self.default_currency not in self.enabled_currencies:
+            self.enabled_currencies.append(self.default_currency)
+        self.base_currency = money.BASE_CURRENCY
 
         # لا نرفع النسخة إلا عند تعديل فعلي بعد الإنشاء
         if self.pk and AppConfig.objects.filter(pk=1).exists():
@@ -200,6 +218,9 @@ class AppConfig(TimeStampedModel):
             raise ValidationError(
                 {"default_language": "اللغة الافتراضية يجب أن تكون ضمن اللغات المدعومة."}
             )
+        for code in self.enabled_currencies or []:
+            if not money.is_valid(code):
+                raise ValidationError({"enabled_currencies": f"عملة غير معروفة: {code}"})
 
     # ------------------------------------------------------------------
 
@@ -214,8 +235,27 @@ class AppConfig(TimeStampedModel):
     def feature(self, key: str, fallback=False):
         return (self.features or {}).get(key, defaults.DEFAULT_FEATURES.get(key, fallback))
 
-    def currency_symbol_for(self, lang: str) -> str:
-        return getattr(self, f"currency_symbol_{lang}", "") or self.currency_symbol
+    @property
+    def rate_table(self) -> dict:
+        """جدول التحويل الكامل — يشمل المحور نفسه (1 دولار = 1 دولار)."""
+        return money.full_rates(self.rates)
+
+    @property
+    def has_rates(self) -> bool:
+        """هل وضع الأدمن سعرًا واحدًا على الأقل؟ بلا ذلك لا نعرض أي تحويل."""
+        return bool(money.clean_rates(self.rates))
+
+    def currency_for(self, requested: str | None) -> str:
+        """
+        العملة التي يُعرض بها لهذا الطلب.
+
+        نرفض ما ليس في القائمة المتاحة بدل أن نصدّقه: قيمة قادمة من العميل
+        تصل إلى حساب مالي، ولا يُبنى حساب على مدخل غير مفحوص.
+        """
+        allowed = self.enabled_currencies or list(money.CURRENCY_CODES)
+        if requested and requested in allowed:
+            return requested
+        return self.default_currency if self.default_currency in allowed else allowed[0]
 
     def landing_for(self, lang: str) -> dict:
         return getattr(self, f"landing_{lang}", None) or self.landing_ar or {}
@@ -242,6 +282,7 @@ class AdminLog(models.Model):
         ("user_auto_publish", "تبديل النشر التلقائي"),
         ("config", "تعديل الإعدادات"),
         ("report_resolve", "معالجة بلاغ"),
+        ("account_deleted", "حذف حساب بطلب صاحبه"),
     ]
 
     actor = models.ForeignKey(

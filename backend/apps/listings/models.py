@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import F, Q
 from django.utils import timezone
 
+from apps.core import money
 from apps.core.models import TimeStampedModel, TranslatedNameModel
 
 
@@ -70,8 +71,16 @@ class Listing(TimeStampedModel):
     title = models.CharField("العنوان", max_length=120, validators=[MinLengthValidator(5)])
     description = models.TextField("الوصف", max_length=4000)
 
-    # رقم فقط — العملة من app_config (plan2 §6). null = «على السوم»
+    # السعر بالعملة التي اختارها البائع. null = «على السوم».
+    #
+    # ⚠️ العملة تُحفظ مع الإعلان ولا تُشتقّ من الإعدادات. هذا ما يجعل رقم
+    # البائع ثابتًا مدى حياة الإعلان مهما تحرّك سعر الصرف — التحويل يحدث عند
+    # العرض فقط (apps/core/money.py).
     price = models.BigIntegerField("السعر", null=True, blank=True, db_index=True)
+    price_currency = models.CharField(
+        "عملة السعر", max_length=3, default=money.BASE_CURRENCY,
+        choices=money.CURRENCY_CHOICES, db_index=True,
+    )
     condition = models.CharField(
         "الحالة", max_length=8, choices=Condition.choices, default=Condition.USED
     )

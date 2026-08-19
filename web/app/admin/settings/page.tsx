@@ -48,8 +48,53 @@ export default function SettingsPage() {
   const [lang, setLang] = useState<'ar' | 'tr' | 'en'>('ar');
   const [busy, setBusy] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [currencyWarning, setCurrencyWarning] = useState<string | null>(null);
   const [uploading, setUploading] = useState<string | null>(null);
+
+  /* --------------------------------------------------------- أسعار الصرف */
+
+  /**
+   * نحتفظ بالمُدخلات نصوصًا لا أرقامًا.
+   *
+   * الأدمن يمسح خانة ليكتب من جديد، والنصّ الفارغ ليس صفرًا. تحويله إلى رقم
+   * أثناء الكتابة كان يعني أن مسح «13000» يحفظ سعرًا يساوي صفرًا للحظة.
+   */
+  const rateInput = (code: string): string => {
+    const draft = (form.rates ?? {}) as Record<string, unknown>;
+    const value = draft[code];
+    return value === undefined || value === null ? '' : String(value);
+  };
+
+  const setRate = (code: string, raw: string) => {
+    const cleaned = raw.replace(/[^\d.]/g, '');
+    const next = { ...((form.rates ?? {}) as Record<string, unknown>) };
+    if (cleaned === '') delete next[code];
+    else next[code] = cleaned;
+    set('rates', next);
+  };
+
+  const enabledCurrencies = ((form.enabled_currencies as string[]) ?? []).length
+    ? (form.enabled_currencies as string[])
+    : (data?.meta.currencies.map((c) => c.code) ?? []);
+
+  const toggleCurrency = (code: string) => {
+    const next = enabledCurrencies.includes(code)
+      ? enabledCurrencies.filter((c) => c !== code)
+      : [...enabledCurrencies, code];
+    // عملة واحدة على الأقل — قائمة فارغة تعني تطبيقًا بلا أي سعر
+    if (next.length === 0) return;
+    set('enabled_currencies', next);
+  };
+
+  const ratesSet = Object.values((form.rates ?? {}) as Record<string, unknown>).some(
+    (value) => Number(value) > 0,
+  );
+
+  /** عمر الأسعار بالأيام — نُنبّه الأدمن حين تتقادم بدل انتظار شكوى مستخدم. */
+  const ratesAge = data?.config.currency.rates_updated_at
+    ? Math.floor(
+        (Date.now() - new Date(data.config.currency.rates_updated_at).getTime()) / 86_400_000,
+      )
+    : null;
 
   useEffect(() => {
     if (!data) return;
@@ -95,21 +140,22 @@ export default function SettingsPage() {
 
   const save = async () => {
     setBusy(true);
-    setCurrencyWarning(null);
     try {
-      const result = await api<AdminConfigPayload>('/admin/app-config', {
+      await api<AdminConfigPayload>('/admin/app-config', {
         method: 'PATCH',
         body: {
           app_name_ar: form.app_name_ar,
           app_name_tr: form.app_name_tr,
           app_name_en: form.app_name_en,
           brand_mark: form.brand_mark,
-          currency_code: form.currency_code,
-          currency_symbol: form.currency_symbol,
-          currency_symbol_tr: form.currency_symbol_tr,
-          currency_symbol_en: form.currency_symbol_en,
-          currency_position: form.currency_position,
-          currency_decimals: Number(form.currency_decimals ?? 0),
+          // الأسعار تُرسَل أرقامًا — النصّ الفارغ يعني «عطّل التحويل لهذه العملة»
+          rates: Object.fromEntries(
+            Object.entries((form.rates ?? {}) as Record<string, unknown>)
+              .map(([code, value]) => [code, Number(value)])
+              .filter(([, value]) => Number(value) > 0),
+          ),
+          default_currency: form.default_currency,
+          enabled_currencies: enabledCurrencies,
           review_mode: form.review_mode,
           review_threshold: Number(form.review_threshold ?? 3),
           listing_expiry_days: Number(form.listing_expiry_days ?? 60),
@@ -130,7 +176,6 @@ export default function SettingsPage() {
           landing_en: landing.en,
         },
       });
-      if (result.currency_warning) setCurrencyWarning(result.currency_warning);
       setDirty(false);
       toast('✅ حُفظت الإعدادات');
       void reload();
@@ -145,9 +190,6 @@ export default function SettingsPage() {
   if (!data) return <Notice tone="danger">تعذّر تحميل الإعدادات.</Notice>;
 
   const features = (form.features ?? {}) as Record<string, boolean>;
-  const currencyChanged =
-    data.config.currency.code !== form.currency_code ||
-    data.config.currency.symbol !== form.currency_symbol;
 
   return (
     <div>
@@ -162,12 +204,6 @@ export default function SettingsPage() {
           {busy ? 'جاري الحفظ…' : dirty ? 'حفظ التغييرات' : 'محفوظ'}
         </button>
       </div>
-
-      {currencyWarning ? (
-        <div className="mb-16">
-          <Notice tone="warn">{currencyWarning}</Notice>
-        </div>
-      ) : null}
 
       {/* ---------------------------------------------------------- الهوية */}
       <div className="card mb-16">
@@ -268,83 +304,121 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* ---------------------------------------------------------- العملة */}
+      {/* ------------------------------------------------------ أسعار الصرف */}
       <div className="card mb-16">
-        <div className="card-title">💱 العملة</div>
+        <div className="card-title">💱 العملات وأسعار الصرف</div>
 
-        {currencyChanged ? (
+        <p className="hint mb-12">
+          كل بائع يختار عملة إعلانه، و<b>رقمه يبقى كما كتبه إلى الأبد</b> مهما تغيّرت
+          الأسعار هنا. ما تكتبه في هذا القسم يُستعمل فقط ليرى المشتري تقديرًا
+          تقريبيًا بعملته — يظهر مسبوقًا بعلامة «≈» وبخطّ باهت تحت السعر الأصلي.
+        </p>
+
+        {!ratesSet ? (
           <div className="mb-12">
-            <Notice tone="danger">
-              <b>انتبه:</b> تغيير العملة <b>لا يحوّل الأسعار المنشورة</b>. إعلان سعره
-              450000 سيُقرأ كما هو بالعملة الجديدة. الرقم لا يتغيّر — الرمز فقط.
+            <Notice tone="warn">
+              <b>لم تُضبط أسعار الصرف بعد.</b> حتى تضبطها، يرى كل مستخدم السعر بعملة
+              البائع وحدها ولا يظهر أي تحويل. هذا مقصود: عرض رقم مبنيّ على سعر
+              مخترَع أسوأ من عدم عرض شيء.
             </Notice>
           </div>
-        ) : (
-          <p className="hint mb-12">
-            عملة واحدة للسوق كلّه. الأسعار تُخزَّن أرقامًا بلا عملة، والرمز يُضاف عند العرض.
-          </p>
-        )}
+        ) : ratesAge !== null && ratesAge > 7 ? (
+          <div className="mb-12">
+            <Notice tone="warn">
+              مرّ <b>{ratesAge} يومًا</b> على آخر تحديث للأسعار. راجعها — التقديرات
+              المعروضة للمستخدمين مبنيّة عليها.
+            </Notice>
+          </div>
+        ) : null}
 
-        <div className="row-3">
-          <div className="field">
-            <label className="label">العملة</label>
-            <select
-              className="select"
-              value={String(form.currency_code ?? 'SYP')}
-              onChange={(e) => {
-                const known = data.meta.currencies.find((c) => c.code === e.target.value);
-                set('currency_code', e.target.value);
-                if (known) {
-                  set('currency_symbol', known.symbol_ar);
-                  set('currency_symbol_tr', known.symbol_tr);
-                  set('currency_symbol_en', known.symbol_en);
-                }
-              }}
-            >
-              {data.meta.currencies.map((c) => (
-                <option key={c.code} value={c.code}>{c.code}</option>
-              ))}
-            </select>
+        <div className="field">
+          <label className="label">
+            سعر الدولار — اكتب كم يساوي <b>دولار واحد</b> من كل عملة
+          </label>
+          <div className="row-3">
+            {data.meta.rate_codes.map((code) => {
+              const info = data.meta.currencies.find((c) => c.code === code);
+              return (
+                <div className="field" key={code}>
+                  <label className="label">
+                    1 $ = <span style={{ color: 'var(--brand-text)' }}>{info?.name ?? code}</span>
+                  </label>
+                  <input
+                    className="input"
+                    inputMode="decimal"
+                    dir="ltr"
+                    placeholder="مثال: 13000"
+                    value={rateInput(code)}
+                    onChange={(e) => setRate(code, e.target.value)}
+                  />
+                </div>
+              );
+            })}
           </div>
-          <div className="field">
-            <label className="label">الرمز (عربي)</label>
-            <input
-              className="input"
-              value={String(form.currency_symbol ?? '')}
-              onChange={(e) => set('currency_symbol', e.target.value)}
-            />
-          </div>
-          <div className="field">
-            <label className="label">موضع الرمز</label>
-            <select
-              className="select"
-              value={String(form.currency_position ?? 'after')}
-              onChange={(e) => set('currency_position', e.target.value)}
-            >
-              <option value="after">بعد المبلغ — 450,000 ل.س</option>
-              <option value="before">قبل المبلغ — $ 450,000</option>
-            </select>
-          </div>
+          <p className="hint" style={{ marginTop: 6 }}>
+            أرقام فقط بلا فواصل. اترك الخانة فارغة لتعطيل التحويل إلى تلك العملة.
+          </p>
         </div>
 
         <div className="row-2">
           <div className="field">
-            <label className="label">الرمز (تركي)</label>
-            <input
-              className="input"
-              value={String(form.currency_symbol_tr ?? '')}
-              onChange={(e) => set('currency_symbol_tr', e.target.value)}
-            />
+            <label className="label">العملة الافتراضية للعرض</label>
+            <select
+              className="select"
+              value={String(form.default_currency ?? data.meta.base_currency)}
+              onChange={(e) => set('default_currency', e.target.value)}
+            >
+              {data.meta.currencies.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name} ({c.symbol})
+                </option>
+              ))}
+            </select>
+            <p className="hint" style={{ marginTop: 6 }}>
+              ما يقرأ به المستخدم قبل أن يبدّل العملة بنفسه من الترويسة.
+            </p>
           </div>
           <div className="field">
-            <label className="label">الرمز (إنكليزي)</label>
-            <input
-              className="input"
-              value={String(form.currency_symbol_en ?? '')}
-              onChange={(e) => set('currency_symbol_en', e.target.value)}
-            />
+            <label className="label">العملات المتاحة للمستخدمين</label>
+            <div className="stack" style={{ gap: 6 }}>
+              {data.meta.currencies.map((c) => {
+                const enabled = enabledCurrencies.includes(c.code);
+                return (
+                  <label key={c.code} className="row" style={{ gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={() => toggleCurrency(c.code)}
+                    />
+                    <span className="grow">
+                      {c.name} <span className="hint">({c.symbol})</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="hint" style={{ marginTop: 6 }}>
+              إيقاف عملة يمنع اختيارها في الإعلانات الجديدة — والإعلانات القديمة
+              المسعّرة بها تبقى كما هي.
+            </p>
           </div>
         </div>
+
+        {ratesSet ? (
+          <div className="mt-12">
+            <Notice tone="info">
+              <b>معاينة:</b> إعلان سعره 100 $ سيُقرأ{' '}
+              {data.meta.rate_codes
+                .filter((code) => Number(rateInput(code)) > 0)
+                .map((code) => {
+                  const info = data.meta.currencies.find((c) => c.code === code);
+                  const value = Math.round(100 * Number(rateInput(code)));
+                  return `≈ ${value.toLocaleString('en-US')} ${info?.symbol ?? code}`;
+                })
+                .join(' · ')}
+            </Notice>
+          </div>
+        ) : null}
       </div>
 
       {/* ---------------------------------------------------------- المراجعة */}

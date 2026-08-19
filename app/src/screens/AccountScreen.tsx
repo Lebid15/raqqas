@@ -181,6 +181,20 @@ export function AccountScreen() {
                 }
               />
             ) : null}
+            {config.legal.privacy ? (
+              <MenuItem
+                icon="🔒"
+                label={text.account.privacy}
+                onPress={() => void Linking.openURL(config.legal.privacy)}
+              />
+            ) : null}
+            {config.legal.terms ? (
+              <MenuItem
+                icon="📄"
+                label={text.account.terms}
+                onPress={() => void Linking.openURL(config.legal.terms)}
+              />
+            ) : null}
             <MenuItem
               icon="ℹ️"
               label={text.account.about}
@@ -190,7 +204,19 @@ export function AccountScreen() {
 
           {isAuthenticated ? (
             <Menu style={{ marginTop: 12 }}>
+              <MenuItem
+                icon="🚫"
+                label={text.account.blocked}
+                onPress={() => navigation.navigate('Blocked')}
+              />
               <MenuItem icon="🚪" label={text.account.logout} danger onPress={confirmLogout} />
+              {/* حذف الحساب — مسار إلزامي في Google Play، وواضح لا مخبّأ */}
+              <MenuItem
+                icon="🗑️"
+                label={text.account.deleteAccount}
+                danger
+                onPress={() => navigation.navigate('DeleteAccount')}
+              />
             </Menu>
           ) : null}
         </View>

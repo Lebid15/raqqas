@@ -7,13 +7,13 @@ from .models import AdminLog, AppConfig, DownloadEvent
 class AppConfigAdmin(admin.ModelAdmin):
     """لوحة Django مجرّد شبكة أمان — الواجهة الحقيقية هي لوحة الإدارة (Next.js)."""
 
-    readonly_fields = ("version", "updated_at", "updated_by")
+    readonly_fields = ("version", "updated_at", "updated_by", "base_currency")
     fieldsets = (
         ("النسخة", {"fields": ("version", "updated_at", "updated_by")}),
         ("التصميم", {"fields": ("theme_light", "theme_dark", "font_family", "font_scale",
                                 "radius", "shadows", "density", "dark_mode_enabled")}),
-        ("العملة", {"fields": ("currency_code", "currency_symbol", "currency_symbol_tr",
-                               "currency_symbol_en", "currency_position", "currency_decimals")}),
+        ("العملات", {"fields": ("base_currency", "default_currency", "enabled_currencies",
+                                "rates", "rates_updated_at")}),
         ("اللغات", {"fields": ("default_language", "supported_languages")}),
         ("الصفحة التعريفية", {"fields": ("landing_ar", "landing_tr", "landing_en", "landing_image")}),
         ("التطبيق", {"fields": ("apk_url", "apk_sha256", "apk_size_mb", "latest_version",

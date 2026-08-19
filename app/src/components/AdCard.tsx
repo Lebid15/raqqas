@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import type { ListingCard } from '../api/types';
 import { useI18n } from '../i18n';
+import { useAppConfig } from '../state/AppConfigContext';
 import { useFavorites } from '../state/FavoritesContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { useToast } from './Toast';
@@ -24,6 +25,34 @@ function Placeholder({ icon }: { icon?: string }) {
       <Txt size={40} style={{ opacity: 0.6 }}>
         {icon || '📦'}
       </Txt>
+    </View>
+  );
+}
+
+
+/**
+ * سعر البطاقة — سطران لا سطر واحد.
+ *
+ * الأعلى بعملة البائع كما كتبها، والأسفل تقدير بعملة القارئ. جعلناه باهتًا
+ * وأصغر عمدًا: هو رقم مشتقّ من جدول يدوي، ولا يصحّ أن ينافس السعر الحقيقي
+ * بصريًا. وحين لا نملك سعر صرف لا يظهر السطر الثاني إطلاقًا.
+ */
+function Price({ listing, size }: { listing: ListingCard; size: number }) {
+  const t = useTheme();
+  const { lang } = useI18n();
+  const { price } = useAppConfig();
+  const { main, approx } = price(listing.price, listing.price_currency, lang);
+
+  return (
+    <View style={{ gap: 1 }}>
+      <Txt size={size} weight={900} color={t.colors.brandText} align="start">
+        {main}
+      </Txt>
+      {approx ? (
+        <Txt size={size - 4} weight={700} muted align="start">
+          {approx}
+        </Txt>
+      ) : null}
     </View>
   );
 }
@@ -159,9 +188,7 @@ export function AdCard({
         <Txt size={13.5} weight={700} numberOfLines={2} align="start" style={{ lineHeight: t.fs(20), minHeight: t.fs(39) }}>
           {listing.title}
         </Txt>
-        <Txt size={15} weight={900} color={t.colors.brandText} align="start">
-          {listing.price_text}
-        </Txt>
+        <Price listing={listing} size={15} />
         <View style={[t.row, { alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 'auto', paddingTop: 4 }]}>
           {listing.city ? (
             <Txt size={11} weight={600} muted>
@@ -233,9 +260,7 @@ export function AdRow({
         <Txt size={13.5} weight={700} numberOfLines={2} align="start" style={{ lineHeight: t.fs(19) }}>
           {listing.title}
         </Txt>
-        <Txt size={14} weight={900} color={t.colors.brandText} align="start">
-          {listing.price_text}
-        </Txt>
+        <Price listing={listing} size={14} />
         <View style={[t.row, { alignItems: 'center', gap: 8, flexWrap: 'wrap' }]}>
           {listing.city ? (
             <Txt size={11} weight={600} muted>

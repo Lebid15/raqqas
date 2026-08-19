@@ -43,7 +43,9 @@ const EMPTY: Filters = {
 export function SearchScreen({ navigation, route }: Props) {
   const t = useTheme();
   const { t: text, tp } = useI18n();
-  const { config } = useAppConfig();
+  const { config, currency } = useAppConfig();
+  const currencySymbol =
+    config.currency.catalogue.find((c) => c.code === currency)?.symbol ?? currency;
 
   const [query, setQuery] = useState(route.params?.q ?? '');
   const [debounced, setDebounced] = useState(query);
@@ -82,9 +84,12 @@ export function SearchScreen({ navigation, route }: Props) {
       condition: filters.condition ?? undefined,
       min_price: filters.minPrice || undefined,
       max_price: filters.maxPrice || undefined,
+      // حدّا السعر مكتوبان بعملة القارئ — بلا هذا يقارنهما الخادم بأرقام
+      // إعلانات بعملات أخرى، فيصير «من 500» يلتقط إعلانًا بـ500 ليرة سورية.
+      currency: filters.minPrice || filters.maxPrice ? currency : undefined,
       sort: filters.sort,
     }),
-    [debounced, filters, route.params?.featured],
+    [debounced, filters, route.params?.featured, currency],
   );
 
   const fetchPage = useCallback(
@@ -447,7 +452,7 @@ export function SearchScreen({ navigation, route }: Props) {
         </Field>
 
         {/* نطاق السعر */}
-        <Field label={`${text.search.priceRange} (${config.currency.symbol})`}>
+        <Field label={`${text.search.priceRange} (${currencySymbol})`}>
           <View style={[t.row, { gap: 10 }]}>
             <View style={{ flex: 1 }}>
               <Input

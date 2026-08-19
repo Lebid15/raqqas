@@ -37,18 +37,26 @@ export type AppConfig = {
     darkModeEnabled: boolean;
   };
   currency: {
-    code: string; symbol: string; symbols: Record<string, string>;
-    position: 'before' | 'after'; decimals: number;
+    base: string;
+    default: string;
+    enabled: string[];
+    catalogue: {
+      code: string; symbol: string; symbols: Record<string, string>;
+      name: string; names: Record<string, string>; decimals: number;
+    }[];
+    rates: Record<string, number>;
+    rates_updated_at: string | null;
   };
   languages: { supported: string[]; default: string; rtl: string[] };
   landing: Record<string, LandingText | string | null>;
   app: {
-    latest_version: string; min_version: string; apk_url: string;
-    apk_sha256: string; apk_size_mb: number; update_message: string;
+    latest_version: string; min_version: string; store_url: string;
+    apk_url: string; apk_sha256: string; apk_size_mb: number; update_message: string;
   };
   features: Record<string, boolean>;
   limits: Record<string, number>;
   support: { whatsapp: string; email: string };
+  legal: { privacy: string; terms: string; delete_account: string };
 };
 
 export type LandingText = {
@@ -76,9 +84,18 @@ export type AdminConfigPayload = {
     fonts: string[];
     shadows: string[];
     densities: string[];
-    currencies: { code: string; symbol_ar: string; symbol_tr: string; symbol_en: string }[];
+    currencies: {
+      code: string;
+      symbol: string;
+      symbols: { ar: string; tr: string; en: string };
+      name: string;
+      names: { ar: string; tr: string; en: string };
+      decimals: number;
+    }[];
+    /** العملات التي تحتاج سعر صرف — كل شيء عدا المحور نفسه. */
+    rate_codes: string[];
+    base_currency: string;
   };
-  currency_warning?: string;
 };
 
 /* ------------------------------------------------------------------ الجلسة */

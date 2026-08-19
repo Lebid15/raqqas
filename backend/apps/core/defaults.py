@@ -151,11 +151,6 @@ DEFAULT_CURRENCY = {
     "decimals": 0,
 }
 
-KNOWN_CURRENCIES = [
-    {"code": "SYP", "symbol_ar": "ل.س", "symbol_tr": "SYP", "symbol_en": "SYP", "decimals": 0},
-    {"code": "USD", "symbol_ar": "$", "symbol_tr": "$", "symbol_en": "$", "decimals": 0},
-    {"code": "TRY", "symbol_ar": "ل.ت", "symbol_tr": "₺", "symbol_en": "₺", "decimals": 0},
-]
 
 # ------------------------------------------------------------------ الصفحة التعريفية
 

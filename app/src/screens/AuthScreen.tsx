@@ -34,6 +34,7 @@ export function AuthScreen({ navigation, route }: Props) {
     add: text.auth.loginRequiredAdd,
     favorites: text.auth.loginRequiredFavorites,
     account: text.account.guestText,
+    block: text.auth.loginRequiredBlock,
   };
   const reason = route.params?.reason ? reasonText[route.params.reason] : null;
 

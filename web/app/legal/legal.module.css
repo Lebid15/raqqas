@@ -1,0 +1,210 @@
+/* صفحات الوثائق القانونية — الخصوصية والشروط وحذف الحساب. */
+
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+}
+
+.bar {
+  background: var(--brand);
+  color: #fff;
+  padding: 18px 20px;
+}
+
+.barInner {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.home {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.langs {
+  margin-inline-start: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.lang {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 0;
+  border-radius: var(--r-full);
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lang[data-active='true'] {
+  background: #fff;
+  color: var(--brand);
+}
+
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+
+.title {
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.updated {
+  color: var(--ink-3);
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.lead {
+  margin-top: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.9;
+  box-shadow: var(--sh-sm);
+}
+
+.section {
+  margin-top: 26px;
+}
+
+.h2 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.body {
+  font-size: 14.5px;
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+
+.body p + p {
+  margin-top: 10px;
+}
+
+.list {
+  margin: 10px 0 0;
+  padding-inline-start: 22px;
+  font-size: 14.5px;
+  line-height: 1.95;
+  color: var(--ink-2);
+}
+
+.list li + li {
+  margin-top: 4px;
+}
+
+.contact {
+  margin-top: 30px;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-100);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.contact a {
+  color: var(--brand-text);
+  font-weight: 700;
+}
+
+/* ---------------------------------------------- نموذج حذف الحساب */
+
+.form {
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px;
+  box-shadow: var(--sh-sm);
+}
+
+.label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 15px;
+  background: var(--surface-2);
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.input:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+.danger {
+  width: 100%;
+  background: var(--danger);
+  color: #fff;
+  border: 0;
+  border-radius: var(--r-sm);
+  padding: 13px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.warn {
+  background: var(--danger-50);
+  border: 1px solid var(--danger);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: 14.5px;
+  line-height: 1.9;
+  margin-top: 18px;
+}
+
+.ok {
+  background: var(--success-50);
+  border: 1px solid var(--success);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  font-size: 14.5px;
+  line-height: 1.9;
+  margin-top: 18px;
+  font-weight: 700;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}

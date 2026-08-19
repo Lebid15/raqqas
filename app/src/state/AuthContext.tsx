@@ -44,7 +44,7 @@ type AuthValue = {
   pendingReason: AuthReason | null;
 };
 
-export type AuthReason = 'contact' | 'add' | 'favorites' | 'account';
+export type AuthReason = 'contact' | 'add' | 'favorites' | 'account' | 'block';
 
 const AuthContext = createContext<AuthValue | null>(null);
 

@@ -45,6 +45,7 @@ const en: Dictionary = {
     views: 'views',
     photo: 'photo',
     share: 'Share',
+    currency: 'Currency',
   },
 
   home: {
@@ -87,6 +88,11 @@ const en: Dictionary = {
     photosOf: 'Photo {current} of {total}',
     yours: 'This is your listing',
     edit: 'Edit listing',
+    block: 'Block seller',
+    blockTitle: 'Block this seller?',
+    blockText: 'You will no longer see listings from {name}. You can undo this from Account › Blocked.',
+    blockDone: 'Blocked — their listings are hidden from you.',
+    approxHint: 'Approximate, based on the latest rate set by the admin',
   },
 
   favorites: {
@@ -172,6 +178,8 @@ const en: Dictionary = {
     photosPartialText: 'Uploaded {done} of {total} photos. Retry the rest.',
     retryPhotos: 'Retry photo upload',
     skipPhotos: 'Skip for now',
+    priceCurrency: 'Price currency',
+    priceCurrencyHint: 'Pick the currency you price in — your number never changes.',
   },
 
   edit: {
@@ -217,6 +225,20 @@ const en: Dictionary = {
     version: 'Version {version}',
     stats: { listings: 'listings', views: 'views', favorites: 'saved' },
     saved: 'Changes saved',
+    privacy: 'Privacy policy',
+    terms: 'Terms of use',
+    blocked: 'Blocked sellers',
+    blockedEmpty: "You haven't blocked anyone.",
+    blockedEmptyText: "Blocked sellers' listings are hidden from you, and they are not told.",
+    unblock: 'Unblock',
+    unblocked: 'Unblocked',
+    deleteAccount: 'Delete my account',
+    deleteTitle: 'Delete account permanently',
+    deleteWarn: 'Your account, listings, photos and favourites are deleted permanently. This cannot be undone and no copy is kept.',
+    deleteConfirmLabel: 'Type your password to confirm',
+    deleteButton: 'Delete my account permanently',
+    deleteDone: 'Your account was deleted. Thank you for your time with us.',
+    deleteWeb: 'You can also delete your account from a web page without the app:',
   },
 
   myListings: {
@@ -273,6 +295,7 @@ const en: Dictionary = {
     loginRequiredFavorites: 'Sign in to keep your saved listings on your account.',
     welcomeUser: 'Welcome {name} 👋',
     loggedOut: 'Signed out',
+    loginRequiredBlock: 'Sign in to block sellers.',
   },
 
   update: {
@@ -282,6 +305,7 @@ const en: Dictionary = {
     later: 'Later',
     requiredTitle: 'Update required to continue',
     requiredText: 'This version is no longer supported. Download the new one to continue.',
+    openStore: 'Open store',
   },
 
   errors: {

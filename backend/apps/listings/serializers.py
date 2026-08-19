@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from apps.accounts.serializers import PublicSellerSerializer
 from apps.catalog.models import Category, City
+from apps.core import money
 from apps.core.models import AppConfig
 from apps.core.timeutils import format_price, time_ago
 
@@ -42,7 +43,8 @@ class BaseListingSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
 
     def get_price_text(self, obj) -> str:
-        return format_price(obj.price, self._config(), self._lang())
+        """السعر كما كتبه البائع بعملته — لا يتغيّر مهما تحرّك سعر الصرف."""
+        return format_price(obj.price, obj.price_currency, self._lang())
 
     def get_time_text(self, obj) -> str:
         return time_ago(obj.published_at or obj.created_at, self._lang())
@@ -101,7 +103,7 @@ class ListingCardSerializer(BaseListingSerializer):
     class Meta:
         model = Listing
         fields = [
-            "id", "title", "price", "price_text", "condition",
+            "id", "title", "price", "price_currency", "price_text", "condition",
             "is_featured", "status", "thumb", "photos_count", "has_video",
             "category", "city", "address", "time_text", "views_count", "is_favorited",
         ]
@@ -125,7 +127,7 @@ class ListingDetailSerializer(BaseListingSerializer):
     class Meta:
         model = Listing
         fields = [
-            "id", "title", "description", "price", "price_text", "condition",
+            "id", "title", "description", "price", "price_currency", "price_text", "condition",
             "status", "is_featured", "media", "thumb", "photos_count", "has_video",
             "category", "city", "address", "seller",
             "views_count", "favorites_count", "is_favorited",
@@ -146,8 +148,21 @@ class ListingWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Listing
-        fields = ["id", "title", "description", "price", "condition",
+        fields = ["id", "title", "description", "price", "price_currency", "condition",
                   "category", "city", "address"]
+
+    def validate_price_currency(self, value):
+        """
+        لا نقبل إلا عملة متاحة فعلًا في الإعدادات.
+
+        عملة خارج القائمة تعني إعلانًا بسعر لا يستطيع أحد تحويله ولا قراءة
+        رمزه — وهو خطأ يظهر عند المشتري لا عند من ارتكبه.
+        """
+        config = self.context.get("app_config") or AppConfig.get_solo()
+        allowed = config.enabled_currencies or list(money.CURRENCY_CODES)
+        if value not in allowed:
+            raise serializers.ValidationError("عملة غير متاحة.")
+        return value
 
     def validate_address(self, value):
         return " ".join(value.split())[:200]
@@ -244,7 +259,7 @@ class AdminListingSerializer(BaseListingSerializer):
     class Meta:
         model = Listing
         fields = [
-            "id", "title", "description", "price", "price_text", "condition",
+            "id", "title", "description", "price", "price_currency", "price_text", "condition",
             "status", "is_featured", "media", "thumb", "photos_count",
             "category", "city", "address", "seller",
             "views_count", "reports_count", "rejection_reason",

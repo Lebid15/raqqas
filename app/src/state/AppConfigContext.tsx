@@ -3,7 +3,8 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 
 import { api } from '../api/client';
 import type { AppConfig, Lang } from '../api/types';
-import { APP_VERSION, STORAGE } from '../config';
+import { APP_VERSION, CAN_DOWNLOAD_APK, STORAGE } from '../config';
+import { formatAmount, formatApprox } from '../lib/money';
 import { DARK, LIGHT, RADIUS } from '../theme/tokens';
 
 /**
@@ -32,11 +33,25 @@ export const FALLBACK_CONFIG: AppConfig = {
     darkModeEnabled: true,
   },
   currency: {
-    code: 'SYP',
-    symbol: 'ل.س',
-    symbols: { ar: 'ل.س', tr: 'SYP', en: 'SYP' },
-    position: 'after',
-    decimals: 0,
+    base: 'USD',
+    default: 'USD',
+    enabled: ['USD', 'SYP', 'TRY', 'EUR'],
+    catalogue: [
+      { code: 'USD', symbol: '$', symbols: { ar: '$', tr: '$', en: '$' },
+        name: 'دولار أمريكي', names: { ar: 'دولار أمريكي', tr: 'Amerikan doları', en: 'US dollar' },
+        decimals: 0 },
+      { code: 'SYP', symbol: 'ل.س', symbols: { ar: 'ل.س', tr: 'SYP', en: 'SYP' },
+        name: 'ليرة سورية', names: { ar: 'ليرة سورية', tr: 'Suriye lirası', en: 'Syrian pound' },
+        decimals: 0 },
+      { code: 'TRY', symbol: 'ل.ت', symbols: { ar: 'ل.ت', tr: '₺', en: '₺' },
+        name: 'ليرة تركية', names: { ar: 'ليرة تركية', tr: 'Türk lirası', en: 'Turkish lira' },
+        decimals: 0 },
+      { code: 'EUR', symbol: '€', symbols: { ar: '€', tr: '€', en: '€' },
+        name: 'يورو', names: { ar: 'يورو', tr: 'Euro', en: 'Euro' }, decimals: 0 },
+    ],
+    // فارغ عمدًا: قبل أن يضبط الأدمن الأسعار لا نعرض تحويلًا مخترعًا
+    rates: {},
+    rates_updated_at: null,
   },
   languages: { supported: ['ar', 'tr', 'en'], default: 'ar', rtl: ['ar'] },
   landing: {
@@ -48,6 +63,7 @@ export const FALLBACK_CONFIG: AppConfig = {
   app: {
     latest_version: APP_VERSION ?? '1.0.0',
     min_version: '1.0.0',
+    store_url: '',
     apk_url: '',
     apk_sha256: '',
     apk_size_mb: 0,
@@ -71,6 +87,7 @@ export const FALLBACK_CONFIG: AppConfig = {
     min_description_length: 10,
   },
   support: { whatsapp: '', email: '' },
+  legal: { privacy: '', terms: '', delete_account: '' },
 };
 
 type UpdateState = 'none' | 'available' | 'required';
@@ -81,8 +98,17 @@ type AppConfigValue = {
   online: boolean;
   updateState: UpdateState;
   refresh: () => Promise<void>;
-  /** «450,000 ل.س» — الرقم كما هو، والرمز من الإعدادات (plan2 §6) */
+  /** مبلغ مجرّد بعملة القراءة — للمرشّحات لا لأسعار الإعلانات. */
   money: (amount: number | null, lang: Lang) => string;
+  /** سعر إعلان: `main` بعملة البائع، و`approx` تقدير بعملة القارئ أو null. */
+  price: (
+    amount: number | null,
+    listingCurrency: string,
+    lang: Lang,
+  ) => { main: string; approx: string | null };
+  /** العملة التي يقرأ بها المستخدم الآن. */
+  currency: string;
+  setCurrency: (code: string) => Promise<void>;
 };
 
 const AppConfigContext = createContext<AppConfigValue | null>(null);
@@ -102,8 +128,11 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [config, setConfig] = useState<AppConfig>(FALLBACK_CONFIG);
   const [loaded, setLoaded] = useState(false);
   const [online, setOnline] = useState(true);
+  const [chosenCurrency, setChosenCurrency] = useState<string | null>(null);
 
   const applyStored = useCallback(async () => {
+    const saved = await AsyncStorage.getItem(STORAGE.currency);
+    if (saved) setChosenCurrency(saved);
     const raw = await AsyncStorage.getItem(STORAGE.appConfig);
     if (raw) {
       try {
@@ -140,7 +169,10 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   }, [applyStored, refresh]);
 
   const updateState: UpdateState = useMemo(() => {
-    if (!config.app.apk_url) return 'none';
+    // نسخة المتجر تحدّث نفسها عبر Google Play، ونسخة الموقع عبر ملف APK.
+    // فإن غاب سبيل التحديث المناسب للقناة، لا معنى لإخبار المستخدم بشيء.
+    const hasChannel = CAN_DOWNLOAD_APK ? Boolean(config.app.apk_url) : true;
+    if (!hasChannel) return 'none';
     // إصدار مجهول ⇒ لا نحجب ولا نُلحّ. الحجب بناءً على تخمين يقفل التطبيق على
     // من يحمل أحدث نسخة أصلًا، ولا مخرج له من الشاشة.
     if (!APP_VERSION) return 'none';
@@ -149,26 +181,46 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
     return 'none';
   }, [config.app]);
 
+  /**
+   * عملة القراءة — اختيار المستخدم، لا عملة الإعلان.
+   *
+   * تُحفظ على الجهاز فيجدها كما تركها، وتعود إلى الافتراضية إن لم تعد
+   * ضمن العملات المتاحة (قد يوقفها الأدمن بعد أن اختارها المستخدم).
+   */
+  const currency = useMemo(() => {
+    const enabled = config.currency.enabled ?? [];
+    if (chosenCurrency && enabled.includes(chosenCurrency)) return chosenCurrency;
+    return config.currency.default;
+  }, [chosenCurrency, config.currency]);
+
+  const setCurrency = useCallback(async (code: string) => {
+    setChosenCurrency(code);
+    await AsyncStorage.setItem(STORAGE.currency, code);
+  }, []);
+
+  /** مبلغ مجرّد بعملة القراءة — للمرشّحات وحقول البحث لا لأسعار الإعلانات. */
   const money = useCallback(
-    (amount: number | null, lang: Lang) => {
-      if (amount === null || amount === undefined) {
-        return { ar: 'على السوم', tr: 'Pazarlıklı', en: 'Negotiable' }[lang];
-      }
-      const { decimals, position, symbols, symbol } = config.currency;
-      const number = amount.toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      });
-      const sign = symbols?.[lang] || symbol;
-      if (!sign) return number;
-      return position === 'before' ? `${sign} ${number}` : `${number} ${sign}`;
-    },
-    [config.currency],
+    (amount: number | null, lang: Lang) => formatAmount(amount, currency, config, lang),
+    [config, currency],
+  );
+
+  /**
+   * سعر إعلان: سطر البائع، وتحته التقدير بعملة القارئ حين نملك سعر صرف.
+   *
+   * لم نجعلها تعيد نصًّا واحدًا لأن السطرين مختلفان في الوزن البصري —
+   * الأصل بارز، والتقدير باهت وصغير. دمجهما كان سيساوي بينهما.
+   */
+  const price = useCallback(
+    (amount: number | null, listingCurrency: string, lang: Lang) => ({
+      main: formatAmount(amount, listingCurrency || config.currency.base, config, lang),
+      approx: formatApprox(amount, listingCurrency || config.currency.base, currency, config, lang),
+    }),
+    [config, currency],
   );
 
   const value = useMemo<AppConfigValue>(
-    () => ({ config, loaded, online, updateState, refresh, money }),
-    [config, loaded, online, updateState, refresh, money],
+    () => ({ config, loaded, online, updateState, refresh, money, price, currency, setCurrency }),
+    [config, loaded, online, updateState, refresh, money, price, currency, setCurrency],
   );
 
   return <AppConfigContext.Provider value={value}>{children}</AppConfigContext.Provider>;

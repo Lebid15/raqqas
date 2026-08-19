@@ -78,17 +78,13 @@ def time_ago(value, lang: str = "ar") -> str:
     return table["now"]
 
 
-def format_price(amount, config, lang: str = "ar") -> str:
+def format_price(amount, currency: str, lang: str = "ar") -> str:
     """
-    «450,000 ل.س» — الرقم كما هو دائمًا، والرمز فقط من الإعدادات (plan2 §6).
-    الأرقام لاتينية في كل اللغات (plan2 §5).
-    """
-    if amount is None:
-        return {"ar": "على السوم", "tr": "Pazarlıklı", "en": "Negotiable"}.get(lang, "على السوم")
+    «8,500 $» — الرقم كما كتبه البائع، والرمز من عملة إعلانه هو.
 
-    decimals = getattr(config, "currency_decimals", 0) or 0
-    number = f"{amount:,.{decimals}f}"
-    symbol = config.currency_symbol_for(lang) if config else ""
-    if not symbol:
-        return number
-    return f"{symbol} {number}" if config.currency_position == "before" else f"{number} {symbol}"
+    وقّعناها بعملة صريحة بدل قراءتها من الإعدادات: لكل إعلان عملته الآن،
+    وقراءة عملة عامّة هنا كانت ستطبع رمزًا لا يخصّ هذا السعر.
+    """
+    from . import money
+
+    return money.format_amount(amount, currency, lang)

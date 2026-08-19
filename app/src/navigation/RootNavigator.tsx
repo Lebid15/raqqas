@@ -11,7 +11,9 @@ import { useI18n } from '../i18n';
 import { AccountScreen } from '../screens/AccountScreen';
 import { AddListingScreen } from '../screens/AddListingScreen';
 import { AuthScreen } from '../screens/AuthScreen';
+import { BlockedScreen } from '../screens/BlockedScreen';
 import { CategoriesScreen } from '../screens/CategoriesScreen';
+import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 import { EditListingScreen } from '../screens/EditListingScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { FavoritesScreen } from '../screens/FavoritesScreen';
@@ -123,6 +125,8 @@ export function RootNavigator() {
         <Stack.Screen name="MyListings" component={MyListingsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Blocked" component={BlockedScreen} />
+        <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
         <Stack.Screen
           name="Auth"
           component={AuthScreen}

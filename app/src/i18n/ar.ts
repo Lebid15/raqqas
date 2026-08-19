@@ -49,6 +49,7 @@ const ar = {
     views: 'مشاهدة',
     photo: 'صورة',
     share: 'مشاركة',
+    currency: 'العملة',
   },
 
   home: {
@@ -91,6 +92,11 @@ const ar = {
     photosOf: 'صورة {current} من {total}',
     yours: 'هذا إعلانك',
     edit: 'تعديل الإعلان',
+    block: 'حظر المعلن',
+    blockTitle: 'حظر هذا المعلن؟',
+    blockText: 'لن تظهر لك إعلانات {name} بعد الآن. يمكنك رفع الحظر من «حسابي ‹ المحظورون».',
+    blockDone: 'تم الحظر — لن تظهر لك إعلاناته.',
+    approxHint: 'سعر تقريبي حسب آخر تحديث من الإدارة',
   },
 
   favorites: {
@@ -176,6 +182,8 @@ const ar = {
     photosPartialText: 'رُفعت {done} من {total} صور. أعد المحاولة على الباقية.',
     retryPhotos: 'إعادة رفع الصور',
     skipPhotos: 'تخطّي الآن',
+    priceCurrency: 'عملة السعر',
+    priceCurrencyHint: 'اختر العملة التي تريد التسعير بها — سعرك يبقى كما كتبته دائمًا.',
   },
 
   edit: {
@@ -220,6 +228,20 @@ const ar = {
     version: 'الإصدار {version}',
     stats: { listings: 'إعلان', views: 'مشاهدة', favorites: 'محفوظ' },
     saved: 'حُفظت التعديلات',
+    privacy: 'سياسة الخصوصية',
+    terms: 'شروط الاستخدام',
+    blocked: 'المحظورون',
+    blockedEmpty: 'لم تحظر أحدًا.',
+    blockedEmptyText: 'من تحظره لا تظهر لك إعلاناته، ولا يعلم بذلك.',
+    unblock: 'رفع الحظر',
+    unblocked: 'رُفع الحظر',
+    deleteAccount: 'حذف حسابي',
+    deleteTitle: 'حذف الحساب نهائيًا',
+    deleteWarn: 'سيُحذف حسابك وكل إعلاناتك وصورك ومفضلتك حذفًا نهائيًا. لا يمكن التراجع، ولا نحتفظ بنسخة.',
+    deleteConfirmLabel: 'اكتب كلمة مرورك للتأكيد',
+    deleteButton: 'احذف حسابي نهائيًا',
+    deleteDone: 'حُذف حسابك. نعتذر عن أي تقصير، ونشكرك على وقتك معنا.',
+    deleteWeb: 'يمكنك أيضًا حذف حسابك من صفحة على الويب بلا تطبيق:',
   },
 
   myListings: {
@@ -276,6 +298,7 @@ const ar = {
     loginRequiredFavorites: 'سجّل الدخول لتحفظ مفضلتك على حسابك.',
     welcomeUser: 'أهلًا {name} 👋',
     loggedOut: 'تم تسجيل الخروج',
+    loginRequiredBlock: 'سجّل الدخول لتتمكّن من حظر المعلنين.',
   },
 
   update: {
@@ -285,6 +308,7 @@ const ar = {
     later: 'لاحقًا',
     requiredTitle: 'يلزم التحديث للمتابعة',
     requiredText: 'هذه النسخة لم تعد مدعومة. حمّل النسخة الجديدة للمتابعة.',
+    openStore: 'فتح المتجر',
   },
 
   errors: {

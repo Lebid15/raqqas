@@ -37,6 +37,7 @@ export function EditListingScreen({ navigation, route }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [priceCurrency, setPriceCurrency] = useState(config.currency.base);
   const [condition, setCondition] = useState<'new' | 'used'>('used');
   const [parentId, setParentId] = useState<number | null>(null);
   const [categoryId, setCategoryId] = useState<number | null>(null);
@@ -59,6 +60,7 @@ export function EditListingScreen({ navigation, route }: Props) {
     setTitle(listing.title);
     setDescription(listing.description);
     setPrice(listing.price === null ? '' : String(listing.price));
+    setPriceCurrency(listing.price_currency || config.currency.base);
     setCondition(listing.condition);
     setParentId(listing.category?.parent?.id ?? listing.category?.id ?? null);
     setCategoryId(listing.category?.id ?? null);
@@ -146,6 +148,7 @@ export function EditListingScreen({ navigation, route }: Props) {
         title: title.trim(),
         description: description.trim(),
         price: price.trim() === '' ? null : Number(price.replace(/\D/g, '')),
+        price_currency: priceCurrency,
         condition,
         category: categoryId,
         city: cityId,
@@ -383,7 +386,7 @@ export function EditListingScreen({ navigation, route }: Props) {
         </Field>
 
         <Field
-          label={`${text.add.price} (${config.currency.symbol})`}
+          label={text.add.price}
           hint={text.add.priceHint}
           error={error?.fieldError('price')}
         >
@@ -395,6 +398,23 @@ export function EditListingScreen({ navigation, route }: Props) {
             ltr
           />
         </Field>
+
+        {/*
+          عملة السعر — تُحفظ مع الإعلان ولا تُشتقّ من إعدادات المتجر.
+          هذا ما يبقي رقم البائع ثابتًا مهما تحرّك سعر الصرف بعد النشر.
+        */}
+        {config.currency.catalogue.length > 1 ? (
+          <Field label={text.add.priceCurrency} hint={text.add.priceCurrencyHint}>
+            <ChoiceGroup
+              options={config.currency.catalogue.map((c) => ({
+                value: c.code,
+                label: `${c.symbol} ${c.name}`,
+              }))}
+              value={priceCurrency}
+              onChange={setPriceCurrency}
+            />
+          </Field>
+        ) : null}
 
         <Field label={text.add.condition} required>
           <ChoiceGroup

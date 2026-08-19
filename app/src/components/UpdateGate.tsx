@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Linking, Modal, View } from 'react-native';
+import { Linking, Modal, Platform, View } from 'react-native';
 
-import { APP_VERSION } from '../config';
+import { APP_VERSION, CAN_DOWNLOAD_APK, PLAY_STORE_URL } from '../config';
 import { useI18n } from '../i18n';
 import { useAppConfig } from '../state/AppConfigContext';
 import { useTheme } from '../theme/ThemeProvider';
@@ -12,6 +12,17 @@ import { Button, Txt } from './ui';
  *
  *   الإصدار أقدم من min_version  → شاشة إجبارية لا يُستخدم التطبيق قبل التحديث
  *   الإصدار أقدم من latest       → لافتة يمكن تأجيلها
+ *
+ * ⚠️ فرق جوهري بين قناتَي التوزيع (config.ts → DISTRIBUTION):
+ *
+ *   · نسخة الموقع (direct) → زرّ يفتح رابط ملف APK. هذا سلوك طبيعي خارج المتجر.
+ *   · نسخة المتجر (play)   → زرّ يفتح صفحة التطبيق في Google Play، **ولا يلمس
+ *     ملف APK إطلاقًا**. تنزيل حزمة تثبيت من خارج المتجر داخل تطبيق منشور فيه
+ *     مخالفة صريحة لسياسة «إساءة استخدام الجهاز والشبكة»، وعقوبتها إزالة
+ *     التطبيق لا مجرّد رفض التحديث.
+ *
+ * والشرط `CAN_DOWNLOAD_APK` ثابت وقت البناء لا قيمة من الخادم — فحزمة المتجر
+ * لا تحوي مسار التنزيل في كودها أصلًا، وهذا ما يفحصه المراجع.
  */
 export function UpdateGate({ children }: { children: React.ReactNode }) {
   const t = useTheme();
@@ -22,9 +33,27 @@ export function UpdateGate({ children }: { children: React.ReactNode }) {
   const required = updateState === 'required';
   const available = updateState === 'available' && !dismissed;
 
-  const download = () => {
-    if (config.app.apk_url) void Linking.openURL(config.app.apk_url);
+  /** رابط صفحة التطبيق في المتجر — من اللوحة إن ضُبط، وإلا من معرّف الحزمة. */
+  const storeUrl = config.app.store_url || PLAY_STORE_URL;
+
+  const openUpdate = () => {
+    if (CAN_DOWNLOAD_APK) {
+      if (config.app.apk_url) void Linking.openURL(config.app.apk_url);
+      return;
+    }
+    // `market://` يفتح تطبيق المتجر مباشرة؛ وإن لم يكن مثبَّتًا نرجع للمتصفّح.
+    const marketUrl = storeUrl.replace(
+      'https://play.google.com/store/apps/details',
+      'market://details',
+    );
+    if (Platform.OS === 'android') {
+      Linking.openURL(marketUrl).catch(() => Linking.openURL(storeUrl));
+      return;
+    }
+    void Linking.openURL(storeUrl);
   };
+
+  const actionLabel = CAN_DOWNLOAD_APK ? text.update.download : text.update.openStore;
 
   return (
     <>
@@ -49,7 +78,7 @@ export function UpdateGate({ children }: { children: React.ReactNode }) {
           <Txt size={13} weight={800} color={t.colors.onGold} style={{ flex: 1 }} align="start">
             ⬇️ {tp(text.update.availableText, { version: config.app.latest_version })}
           </Txt>
-          <Button title={text.update.download} size="sm" variant="ghost" onPress={download} />
+          <Button title={actionLabel} size="sm" variant="ghost" onPress={openUpdate} />
           <Button title={text.update.later} size="sm" variant="ghost" onPress={() => setDismissed(true)} />
         </View>
       ) : null}
@@ -76,7 +105,7 @@ export function UpdateGate({ children }: { children: React.ReactNode }) {
             {APP_VERSION ?? '—'} → {config.app.latest_version}
           </Txt>
           <View style={{ marginTop: 12 }}>
-            <Button title={text.update.download} variant="gold" size="lg" onPress={download} />
+            <Button title={actionLabel} variant="gold" size="lg" onPress={openUpdate} />
           </View>
         </View>
       </Modal>

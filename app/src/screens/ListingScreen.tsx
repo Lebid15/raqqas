@@ -3,6 +3,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image } from 'expo-image';
 import React, { useCallback, useRef, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   FlatList,
   Linking,
@@ -21,6 +22,7 @@ import { OptionList, Sheet } from '../components/Sheet';
 import { SubHeader } from '../components/Header';
 import { useToast } from '../components/Toast';
 import { Avatar, Badge, Button, Card, Empty, IconButton, Loader, Notice, Txt } from '../components/ui';
+import { CAN_DOWNLOAD_APK, PLAY_STORE_URL } from '../config';
 import { useResource } from '../hooks/useResource';
 import { useI18n } from '../i18n';
 import type { RootStackParamList } from '../navigation/types';
@@ -42,7 +44,7 @@ const REPORT_REASONS = [
 export function ListingScreen({ navigation, route }: Props) {
   const t = useTheme();
   const { t: text, tp, lang } = useI18n();
-  const { config } = useAppConfig();
+  const { config, price } = useAppConfig();
   const { requireAuth } = useAuth();
   const favorites = useFavorites();
   const toast = useToast();
@@ -144,10 +146,49 @@ export function ListingScreen({ navigation, route }: Props) {
     }
   };
 
+  /**
+   * حظر المعلن — يخفي كل إعلاناته عن هذا المستخدم وحده.
+   *
+   * سياسة المحتوى من المستخدمين لدى Google Play تشترط أن يملك المستخدم وسيلة
+   * لحجب شخص بعينه، لا الاكتفاء بالإبلاغ عن منشور واحد. وبعد الحظر يختفي
+   * الإعلان من الخادم نفسه، فنعود للخلف بدل إبقاء شاشة بلا محتوى.
+   */
+  const priceText = price(listing.price, listing.price_currency, lang);
+
+  const blockSeller = () => {
+    const seller = listing.seller;
+    if (!seller) return;
+    requireAuth('block', () => confirmBlock(seller.id, seller.name));
+  };
+
+  const confirmBlock = (sellerId: number, sellerName: string) => {
+    Alert.alert(text.listing.blockTitle, tp(text.listing.blockText, { name: sellerName }), [
+      { text: text.common.cancel, style: 'cancel' },
+      {
+        text: text.listing.block,
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.post('/auth/blocks', { user_id: sellerId });
+            toast.show(text.listing.blockDone);
+            navigation.goBack();
+          } catch (caught) {
+            toast.show(caught instanceof ApiError ? caught.message : text.errors.generic);
+          }
+        },
+      },
+    ]);
+  };
+
   const share = async () => {
+    // نسخة المتجر تشارك صفحة التطبيق في Google Play، ونسخة الموقع تشارك ملف
+    // APK. مشاركة رابط تثبيت مباشر من تطبيق منشور في المتجر مخالفة سياسة.
+    const appLink = CAN_DOWNLOAD_APK
+      ? config.app.apk_url
+      : config.app.store_url || PLAY_STORE_URL;
     try {
       await Share.share({
-        message: `${listing.title}\n${listing.price_text}\n${config.app.apk_url || ''}`.trim(),
+        message: `${listing.title}\n${listing.price_text}\n${appLink || ''}`.trim(),
       });
     } catch {
       /* ألغى المستخدم المشاركة */
@@ -239,9 +280,16 @@ export function ListingScreen({ navigation, route }: Props) {
           {/* السعر والعنوان */}
           <View>
             <View style={[t.row, { alignItems: 'center', gap: 8 }]}>
-              <Txt size={25} weight={900} color={t.colors.brandText} align="start">
-                {listing.price_text}
-              </Txt>
+              <View>
+                <Txt size={25} weight={900} color={t.colors.brandText} align="start">
+                  {priceText.main}
+                </Txt>
+                {priceText.approx ? (
+                  <Txt size={13.5} weight={700} muted align="start">
+                    {priceText.approx} · {text.listing.approxHint}
+                  </Txt>
+                ) : null}
+              </View>
               {listing.is_featured ? (
                 <Badge
                   label={`⭐ ${text.listing.featured}`}
@@ -314,11 +362,21 @@ export function ListingScreen({ navigation, route }: Props) {
             </View>
           </Card>
 
-          <Pressable onPress={() => setReportOpen(true)} style={{ paddingVertical: 8 }}>
-            <Txt size={13} weight={700} color={t.colors.ink3} align="center">
-              🚩 {text.listing.report}
-            </Txt>
-          </Pressable>
+          {/* الإبلاغ عن الإعلان · وحظر صاحبه — كلاهما مطلوب في سياسة UGC */}
+          <View style={[t.row, { justifyContent: 'center', gap: 18 }]}>
+            <Pressable onPress={() => setReportOpen(true)} style={{ paddingVertical: 8 }}>
+              <Txt size={13} weight={700} color={t.colors.ink3} align="center">
+                🚩 {text.listing.report}
+              </Txt>
+            </Pressable>
+            {listing.can_edit ? null : (
+              <Pressable onPress={blockSeller} style={{ paddingVertical: 8 }}>
+                <Txt size={13} weight={700} color={t.colors.ink3} align="center">
+                  🚫 {text.listing.block}
+                </Txt>
+              </Pressable>
+            )}
+          </View>
         </View>
       </ScrollView>
 

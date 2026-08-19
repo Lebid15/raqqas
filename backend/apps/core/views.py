@@ -8,7 +8,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from . import contrast, defaults
+from django.utils import timezone
+
+from . import contrast, defaults, money
 from .models import AdminLog, AppConfig, DownloadEvent
 from .permissions import IsAdminRole
 from .serializers import (
@@ -70,8 +72,13 @@ class AdminAppConfigView(APIView):
         )
         serializer.is_valid(raise_exception=True)
 
-        currency_changed = self._currency_changed(config, serializer.validated_data)
+        rates_changed = "rates" in serializer.validated_data
         config = serializer.save(updated_by=request.user)
+        if rates_changed:
+            # ختم زمني تلقائي: اللوحة تعرضه ليعرف الأدمن متى آخر تحديث،
+            # والتطبيق يخفي التحويل التقريبي حين يتقادم.
+            AppConfig.objects.filter(pk=config.pk).update(rates_updated_at=timezone.now())
+            config.refresh_from_db(fields=["rates_updated_at"])
 
         AdminLog.record(
             request.user, "config", config,
@@ -80,22 +87,9 @@ class AdminAppConfigView(APIView):
         )
 
         payload = self._payload(config, request)
-        if currency_changed:
-            # تنبيه plan2 §6: الأرقام لا تُحوَّل — الرمز فقط هو ما تغيّر
-            payload["currency_warning"] = (
-                "تنبيه: تغيير العملة لا يحوّل الأسعار المنشورة. إعلان سعره 450000 "
-                "سيُقرأ الآن بالعملة الجديدة كما هو."
-            )
         return Response(payload)
 
     # ------------------------------------------------------------------
-
-    @staticmethod
-    def _currency_changed(config, data) -> bool:
-        for field in ("currency_code", "currency_symbol", "currency_position"):
-            if field in data and data[field] != getattr(config, field):
-                return True
-        return False
 
     @staticmethod
     def _payload(config, request) -> dict:
@@ -108,7 +102,9 @@ class AdminAppConfigView(APIView):
                 "fonts": defaults.BUNDLED_FONTS,
                 "shadows": defaults.SHADOW_PRESETS,
                 "densities": defaults.DENSITY_PRESETS,
-                "currencies": defaults.KNOWN_CURRENCIES,
+                "currencies": money.catalogue(getattr(request, "lang", "ar")),
+                "rate_codes": money.RATE_CODES,
+                "base_currency": money.BASE_CURRENCY,
             },
         }
 

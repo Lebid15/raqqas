@@ -230,6 +230,19 @@ class Command(BaseCommand):
         config = AppConfig.get_solo()
         self.stdout.write(self.style.SUCCESS(f"✓ الإعدادات (نسخة {config.version})"))
 
+        # أسعار صرف تجريبية — للتطوير فقط.
+        #
+        # لا نضعها في القيم الافتراضية للنموذج عمدًا: خادم إنتاج جديد يجب أن
+        # يبدأ **بلا أسعار** فلا يعرض تحويلًا مبنيًا على أرقام لم يكتبها أحد.
+        # هنا، وفي أمر التعبئة التجريبية وحده، نضع أرقامًا ليُرى أثر الميزة.
+        if options["demo"] and not config.rates:
+            config.rates = {"SYP": 13000, "TRY": 42, "EUR": 0.92}
+            config.rates_updated_at = timezone.now()
+            config.save()
+            self.stdout.write(self.style.WARNING(
+                "  ⚠️ أسعار صرف تجريبية — غيّرها من اللوحة قبل الإطلاق"
+            ))
+
         city = self._seed_cities()
         # الأحياء لم تعد تُستخدم في الإعلانات (صار: محافظة + عنوان يكتبه صاحبه)،
         # لكنها تبقى مُعبّأة لأن إعلانات ما قبل التحويل ما تزال تشير إليها.
@@ -333,23 +346,26 @@ class Command(BaseCommand):
                 "  ⚠️ حساب مدير تجريبي: 0900000000 / admin1234 — غيّر كلمة المرور فورًا"
             ))
 
+        # العملة جزء من كل عيّنة عمدًا: السوق الحقيقي مختلط — السيارات
+        # والعقارات بالدولار، والأجهزة والأثاث بالليرة. البيانات التجريبية
+        # التي تستعمل عملة واحدة تخفي أخطاء التحويل بدل أن تكشفها.
         samples = [
-            ("iPhone 15 Pro — 256 جيجا — بحالة ممتازة", 1000000, "phones", "mashlab", "used", True),
-            ("كيا ريو 2015 — فحص كامل — أوتوماتيك", 8500, "cars-sale", "firdous", "used", True),
-            ("بيت عربي للبيع — 200 متر — حي الرميلة", 45000, "houses-sale", "rumaila", "used", True),
-            ("غسالة سامسونغ أوتوماتيك 7 كيلو", 450000, "appliances", "daraiya", "used", False),
-            ("لابتوب Dell i7 الجيل العاشر — 16GB RAM", 620, "laptops", "mansour", "used", False),
-            ("غرفة نوم كاملة خشب زان — جديدة", 3200000, "bedrooms", "hisham", "new", False),
-            ("مطلوب محاسب لشركة تجارية — دوام كامل", None, "hiring", "sinaa", "new", False),
-            ("20 رأس غنم عواس — للبيع جملة", 4500, "sheep", "outside", "new", False),
-            ("مولدة كهرباء 5 كيلو ديزل — صينية", 950, "generators", "jazra", "used", False),
-            ("خدمة نقل أثاث داخل وخارج الرقة", None, "moving", "muroor", "new", False),
-            ("تلفزيون LG سمارت 55 إنش 4K", 780000, "tvs", "nahda", "used", False),
-            ("دراجة نارية هوندا 150 — موديل 2021", 1350, "motorcycles", "wadi", "used", False),
+            ("iPhone 15 Pro — 256 جيجا — بحالة ممتازة", 1000000, "SYP", "phones", "mashlab", "used", True),
+            ("كيا ريو 2015 — فحص كامل — أوتوماتيك", 8500, "USD", "cars-sale", "firdous", "used", True),
+            ("بيت عربي للبيع — 200 متر — حي الرميلة", 45000, "USD", "houses-sale", "rumaila", "used", True),
+            ("غسالة سامسونغ أوتوماتيك 7 كيلو", 450000, "SYP", "appliances", "daraiya", "used", False),
+            ("لابتوب Dell i7 الجيل العاشر — 16GB RAM", 620, "USD", "laptops", "mansour", "used", False),
+            ("غرفة نوم كاملة خشب زان — جديدة", 3200000, "SYP", "bedrooms", "hisham", "new", False),
+            ("مطلوب محاسب لشركة تجارية — دوام كامل", None, "USD", "hiring", "sinaa", "new", False),
+            ("20 رأس غنم عواس — للبيع جملة", 4500, "USD", "sheep", "outside", "new", False),
+            ("مولدة كهرباء 5 كيلو ديزل — صينية", 950, "USD", "generators", "jazra", "used", False),
+            ("خدمة نقل أثاث داخل وخارج الرقة", None, "USD", "moving", "muroor", "new", False),
+            ("تلفزيون LG سمارت 55 إنش 4K", 780000, "SYP", "tvs", "nahda", "used", False),
+            ("دراجة نارية هوندا 150 — موديل 2021", 45000, "TRY", "motorcycles", "wadi", "used", False),
         ]
 
         created_count = 0
-        for index, (title, price, category_slug, hood_slug, condition, featured) in enumerate(samples):
+        for index, (title, price, currency, category_slug, hood_slug, condition, featured) in enumerate(samples):
             if Listing.objects.filter(title=title).exists():
                 continue
             category = Category.objects.filter(slug=category_slug).first()
@@ -367,6 +383,7 @@ class Command(BaseCommand):
                     "المعاينة في الرقة، والسعر قابل للتفاوض البسيط."
                 ),
                 price=price,
+                price_currency=currency,
                 condition=condition,
                 is_featured=featured,
                 status=Listing.Status.PUBLISHED,

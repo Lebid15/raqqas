@@ -113,16 +113,28 @@ class AppConfigTests(BaseAPITest):
         )
         self.assertEqual(response.status_code, 400)
 
-    def test_currency_switch_returns_explicit_warning(self):
+    def test_admin_sets_exchange_rates(self):
         client = self.as_user(self.admin)
         response = client.patch(
             "/api/v1/admin/app-config",
-            {"currency_code": "USD", "currency_symbol": "$"},
+            {"rates": {"SYP": 13000, "TRY": 40, "EUR": 0.92}},
             format="json",
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIn("currency_warning", response.data)
-        self.assertIn("450000", response.data["currency_warning"])
+        self.assertEqual(response.data["config"]["currency"]["rates"]["SYP"], 13000)
+        # الختم الزمني يُوضع تلقائيًا — الأدمن لا يكتب تاريخًا بيده
+        self.assertIsNotNone(response.data["config"]["currency"]["rates_updated_at"])
+
+    def test_admin_gets_a_clear_error_for_a_bad_rate(self):
+        """
+        «14,500» بفاصلة خطأ شائع. الرفض بشرح أفضل من قبول صامت يجعل الأدمن
+        يظنّ أنه حفظ بينما السعر لم يتغيّر.
+        """
+        client = self.as_user(self.admin)
+        response = client.patch(
+            "/api/v1/admin/app-config", {"rates": {"SYP": "abc"}}, format="json",
+        )
+        self.assertEqual(response.status_code, 400)
 
     def test_admin_gets_contrast_warning_after_bad_change(self):
         client = self.as_user(self.admin)

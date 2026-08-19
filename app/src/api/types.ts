@@ -4,6 +4,15 @@ export type Lang = 'ar' | 'tr' | 'en';
 
 export type Translated = { ar: string; tr: string; en: string };
 
+export type CurrencyInfo = {
+  code: string;
+  symbol: string;
+  symbols: Translated;
+  name: string;
+  names: Translated;
+  decimals: number;
+};
+
 export type AppConfig = {
   version: number;
   /** الاسم والشعار من لوحة الإدارة — يسبقان النصّ المدمج في ملفات الترجمة. */
@@ -24,17 +33,22 @@ export type AppConfig = {
     darkModeEnabled: boolean;
   };
   currency: {
-    code: string;
-    symbol: string;
-    symbols: Translated;
-    position: 'before' | 'after';
-    decimals: number;
+    /** محور التحويل — كل الأسعار تُكتب بصيغة «1 دولار = كم». */
+    base: string;
+    /** ما يقرأ به المستخدم قبل أن يختار. */
+    default: string;
+    enabled: string[];
+    catalogue: CurrencyInfo[];
+    /** فارغ = لم يضبط الأدمن الأسعار ⇒ لا يُعرض أي تحويل تقريبي. */
+    rates: Record<string, number>;
+    rates_updated_at: string | null;
   };
   languages: { supported: Lang[]; default: Lang; rtl: Lang[] };
   landing: { ar: LandingText; tr: LandingText; en: LandingText; image: string | null };
   app: {
     latest_version: string;
     min_version: string;
+    store_url: string;
     apk_url: string;
     apk_sha256: string;
     apk_size_mb: number;
@@ -58,6 +72,8 @@ export type AppConfig = {
     min_description_length: number;
   };
   support: { whatsapp: string; email: string };
+  /** روابط الوثائق التي يشترط Google Play الوصول إليها من داخل التطبيق. */
+  legal: { privacy: string; terms: string; delete_account: string };
 };
 
 export type LandingText = {
@@ -115,6 +131,7 @@ export type ListingCard = {
   id: number;
   title: string;
   price: number | null;
+  price_currency: string;
   price_text: string;
   condition: 'new' | 'used';
   is_featured: boolean;
