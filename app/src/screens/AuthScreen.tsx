@@ -1,9 +1,10 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ApiError } from '../api/client';
+import { KeyboardScroll } from '../components/KeyboardScroll';
 import { Field, Input } from '../components/Field';
 import { useToast } from '../components/Toast';
 import { Button, Notice, Txt } from '../components/ui';
@@ -68,11 +69,8 @@ export function AuthScreen({ navigation, route }: Props) {
     (mode === 'login' || name.trim().length >= 2);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: t.colors.bg }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ flexGrow: 1 }}>
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
+      <KeyboardScroll contentContainerStyle={{ flexGrow: 1 }}>
         {/* الترويسة الملوّنة — .auth-hero في التصميم */}
         <View
           style={{
@@ -240,7 +238,7 @@ export function AuthScreen({ navigation, route }: Props) {
             </Txt>
           </Pressable>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardScroll>
+    </View>
   );
 }

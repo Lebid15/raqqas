@@ -1,8 +1,9 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { api, ApiError } from '../api/client';
+import { KeyboardScroll } from '../components/KeyboardScroll';
 import { Field, Input } from '../components/Field';
 import { SubHeader } from '../components/Header';
 import { useToast } from '../components/Toast';
@@ -59,13 +60,10 @@ export function EditProfileScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: t.colors.bg }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <SubHeader title={text.account.editProfile} onBack={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <KeyboardScroll contentContainerStyle={{ padding: 14, paddingBottom: 40 }}>
         {error && !error.fields ? (
           <View style={{ marginBottom: 16 }}>
             <Notice tone="danger">{error.message}</Notice>
@@ -116,7 +114,7 @@ export function EditProfileScreen({ navigation }: Props) {
           disabled={current.length < 6 || next.length < 6}
           onPress={savePassword}
         />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardScroll>
+    </View>
   );
 }

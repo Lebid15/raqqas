@@ -1,10 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 
 import { api, ApiError } from '../api/client';
 import { Field, Input } from '../components/Field';
 import { SubHeader } from '../components/Header';
+import { KeyboardScroll } from '../components/KeyboardScroll';
 import { useToast } from '../components/Toast';
 import { Button, Card, Notice, Txt } from '../components/ui';
 import { useI18n } from '../i18n';
@@ -52,7 +53,7 @@ export function DeleteAccountScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <SubHeader title={text.account.deleteTitle} />
-      <ScrollView contentContainerStyle={{ padding: 14, gap: 14 }}>
+      <KeyboardScroll contentContainerStyle={{ padding: 14, gap: 14 }}>
         <Notice tone="danger">{text.account.deleteWarn}</Notice>
 
         <Card>
@@ -95,7 +96,7 @@ export function DeleteAccountScreen() {
             </Pressable>
           </View>
         ) : null}
-      </ScrollView>
+      </KeyboardScroll>
     </View>
   );
 }

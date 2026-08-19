@@ -1,7 +1,8 @@
 import React from 'react';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { Modal, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useKeyboardHeight } from './KeyboardScroll';
 import { useTheme } from '../theme/ThemeProvider';
 import { IconButton, Txt } from './ui';
 
@@ -21,6 +22,8 @@ export function Sheet({
 }) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const keyboard = useKeyboardHeight();
+  const { height: windowHeight } = useWindowDimensions();
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -33,8 +36,15 @@ export function Sheet({
           backgroundColor: t.colors.surface,
           borderTopLeftRadius: t.radius.xl,
           borderTopRightRadius: t.radius.xl,
-          maxHeight: '86%',
-          paddingBottom: insets.bottom,
+          // ارتفاع محسوب لا نسبة مئوية: مع رفع النافذة فوق لوحة المفاتيح،
+          // كانت «86%» تعني 86% من الشاشة **فوق** اللوحة — فيخرج العنوان
+          // وزرّ الإغلاق من أعلى الشاشة ولا يجد المستخدم كيف يُغلقها.
+          maxHeight: Math.max(220, windowHeight * 0.86 - keyboard),
+          // النافذة ملتصقة بأسفل الشاشة، فلوحة المفاتيح تغطّيها كاملة. نرفعها
+          // بارتفاعها فتبقى الحقول (نطاق السعر · نصّ البلاغ) فوقها ومرئية.
+          // ومع edge-to-edge في أندرويد الحديث لا يقلّص النظام النافذة عنّا.
+          marginBottom: keyboard,
+          paddingBottom: keyboard ? 0 : insets.bottom,
           ...t.shadow('lg'),
         }}
       >

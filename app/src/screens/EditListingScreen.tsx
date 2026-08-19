@@ -2,12 +2,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { ApiError, api } from '../api/client';
 import { deletePhoto, uploadPhotos, type PickedPhoto } from '../api/photos';
 import type { Category, City, Listing, Media } from '../api/types';
 import { ChoiceGroup, Field, Input, SelectButton, TextArea } from '../components/Field';
+import { KeyboardScroll } from '../components/KeyboardScroll';
 import { SubHeader } from '../components/Header';
 import { OptionList, Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
@@ -232,16 +233,10 @@ export function EditListingScreen({ navigation, route }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: t.colors.bg }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <SubHeader title={text.edit.title} onBack={() => navigation.goBack()} />
 
-      <ScrollView
-        contentContainerStyle={{ padding: 14, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <KeyboardScroll contentContainerStyle={{ padding: 14, paddingBottom: 40 }}>
         {error && !error.fields ? (
           <View style={{ marginBottom: 16 }}>
             <Notice tone="danger">{error.message}</Notice>
@@ -450,7 +445,7 @@ export function EditListingScreen({ navigation, route }: Props) {
           disabled={!canSave}
           onPress={save}
         />
-      </ScrollView>
+      </KeyboardScroll>
 
       <Sheet visible={sheet === 'parent'} title={text.add.chooseCategory} onClose={() => setSheet(null)}>
         <OptionList
@@ -492,6 +487,6 @@ export function EditListingScreen({ navigation, route }: Props) {
           }}
         />
       </Sheet>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

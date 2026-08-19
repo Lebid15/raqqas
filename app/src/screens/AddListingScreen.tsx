@@ -2,12 +2,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 
 import { api, ApiError } from '../api/client';
 import { uploadPhotos, type PickedPhoto } from '../api/photos';
 import type { Category, City, Listing } from '../api/types';
 import { ChoiceGroup, Field, Input, SelectButton, TextArea } from '../components/Field';
+import { KeyboardScroll } from '../components/KeyboardScroll';
 import { SubHeader } from '../components/Header';
 import { OptionList, Sheet } from '../components/Sheet';
 import { useToast } from '../components/Toast';
@@ -221,13 +222,10 @@ export function AddListingScreen({ navigation }: Props) {
   /* ---------------------------------------------------------------- النموذج */
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: t.colors.bg }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <SubHeader title={text.add.title} onBack={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={{ padding: 14, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <KeyboardScroll contentContainerStyle={{ padding: 14, paddingBottom: 40 }}>
         {error && !error.fields ? (
           <View style={{ marginBottom: 16 }}>
             <Notice tone="danger">{error.message}</Notice>
@@ -448,7 +446,7 @@ export function AddListingScreen({ navigation }: Props) {
           disabled={!canSubmit}
           onPress={submit}
         />
-      </ScrollView>
+      </KeyboardScroll>
 
       {/* اختيار القسم الرئيسي */}
       <Sheet visible={sheet === 'parent'} title={text.add.chooseCategory} onClose={() => setSheet(null)}>
@@ -494,6 +492,6 @@ export function AddListingScreen({ navigation }: Props) {
           }}
         />
       </Sheet>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
