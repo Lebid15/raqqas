@@ -30,6 +30,9 @@ const UI: Record<Lang, Record<string, string>> = {
     checksumHint: 'تتغيّر كليًا لو عُبث بالملف — طابقها إن أردت التأكّد.',
     soon: 'التطبيق قيد التجهيز — عُد قريبًا.',
     support: 'تواصل معنا',
+    privacy: 'سياسة الخصوصية',
+    terms: 'شروط الاستخدام',
+    deleteAccount: 'حذف الحساب',
   },
   tr: {
     download: 'Uygulamayı indir',
@@ -47,6 +50,9 @@ const UI: Record<Lang, Record<string, string>> = {
     checksumHint: 'Dosya değiştirilirse tamamen değişir.',
     soon: 'Uygulama hazırlanıyor — yakında.',
     support: 'Bize ulaşın',
+    privacy: 'Gizlilik politikasi',
+    terms: 'Kullanim sartlari',
+    deleteAccount: 'Hesap silme',
   },
   en: {
     download: 'Download the app',
@@ -64,6 +70,9 @@ const UI: Record<Lang, Record<string, string>> = {
     checksumHint: 'It changes completely if the file is tampered with.',
     soon: 'The app is being prepared — check back soon.',
     support: 'Contact us',
+    privacy: 'Privacy policy',
+    terms: 'Terms of use',
+    deleteAccount: 'Delete account',
   },
 };
 
@@ -268,7 +277,20 @@ export function Landing({ config }: { config: LandingConfig | null }) {
           </div>
         ) : null}
 
-        <p className="muted txt-sm txt-c mt-24">سوق الرقة · {new Date().getFullYear()}</p>
+        {/*
+          تذييل الوثائق — Google Play يطلب رابط سياسة الخصوصية في الكونسول،
+          لكن المراجع يبحث عنه أيضًا في الصفحة نفسها. وجوده هنا يجعل الرابط
+          قابلًا للاكتشاف من أي مدخل، لا من الكونسول وحده.
+        */}
+        <div className="txt-c mt-24" style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a className="muted txt-sm" href="/privacy">{t.privacy}</a>
+          <span className="muted txt-sm">·</span>
+          <a className="muted txt-sm" href="/terms">{t.terms}</a>
+          <span className="muted txt-sm">·</span>
+          <a className="muted txt-sm" href="/delete-account">{t.deleteAccount}</a>
+        </div>
+
+        <p className="muted txt-sm txt-c mt-16">سوق الرقة · {new Date().getFullYear()}</p>
       </main>
     </div>
   );
