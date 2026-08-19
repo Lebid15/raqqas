@@ -201,8 +201,7 @@ export function AuthScreen({ navigation, route }: Props) {
             <Input
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              password={mode === 'login' ? 'current' : 'new'}
               ltr
             />
           </Field>

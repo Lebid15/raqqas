@@ -61,9 +61,7 @@ export function DeleteAccountScreen() {
             <Input
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-              textContentType="password"
+              password="current"
             />
           </Field>
           {error ? (

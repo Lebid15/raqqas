@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { api } from '../api/client';
@@ -168,6 +169,21 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [applyStored, refresh]);
 
+  /**
+   * إعادة جلب الإعدادات عند عودة التطبيق إلى الواجهة.
+   *
+   * بلا هذا لا تصل تعديلات الأدمن إلا بعد **إقلاع بارد** — ومن يُبقي التطبيق
+   * في الخلفية أسبوعًا يبقى على إعدادات أسبوع مضى. وهذا ليس تجميلًا: أسعار
+   * الصرف تُضبط من اللوحة، ومستخدمٌ يحمل جدولًا قديمًا يقرأ مبالغ خاطئة بلا
+   * أن يعرف. والطلب رخيص لأن الخادم يردّ 304 حين لا يتغيّر شيء.
+   */
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void refresh();
+    });
+    return () => subscription.remove();
+  }, [refresh]);
+
   const updateState: UpdateState = useMemo(() => {
     // نسخة المتجر تحدّث نفسها عبر Google Play، ونسخة الموقع عبر ملف APK.
     // فإن غاب سبيل التحديث المناسب للقناة، لا معنى لإخبار المستخدم بشيء.
@@ -188,7 +204,12 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
    * ضمن العملات المتاحة (قد يوقفها الأدمن بعد أن اختارها المستخدم).
    */
   const currency = useMemo(() => {
-    const enabled = config.currency.enabled ?? [];
+    // الكتالوج شبكة أمان: خادم قديم قد يرسل `enabled` فارغة، وقائمة فارغة
+    // كانت تعني رفض كل اختيار والعودة إلى الافتراضية دائمًا — أي زرّ عملة
+    // لا يفعل شيئًا، وهو أسوأ من زرّ غائب.
+    const enabled = config.currency.enabled?.length
+      ? config.currency.enabled
+      : config.currency.catalogue.map((c) => c.code);
     if (chosenCurrency && enabled.includes(chosenCurrency)) return chosenCurrency;
     return config.currency.default;
   }, [chosenCurrency, config.currency]);

@@ -95,7 +95,7 @@ export function EditProfileScreen({ navigation }: Props) {
         </Txt>
 
         <Field label={text.account.currentPassword} error={error?.fieldError('current_password')}>
-          <Input value={current} onChangeText={setCurrent} secureTextEntry ltr />
+          <Input value={current} onChangeText={setCurrent} password="current" ltr />
         </Field>
 
         <Field
@@ -103,7 +103,7 @@ export function EditProfileScreen({ navigation }: Props) {
           hint={text.auth.passwordHint}
           error={error?.fieldError('new_password')}
         >
-          <Input value={next} onChangeText={setNext} secureTextEntry ltr />
+          <Input value={next} onChangeText={setNext} password="new" ltr />
         </Field>
 
         <Button
