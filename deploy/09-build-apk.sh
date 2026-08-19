@@ -177,6 +177,15 @@ print("   ✓ build.gradle مهيّأ")
 PY
 
 # ---------------------------------------------------------------- البناء
+#
+# ⚠️ EXPO_PUBLIC_DISTRIBUTION=direct — لا يُحذف.
+#
+# هذا السكربت يبني نسخة **الموقع** لا نسخة المتجر. القيمة الافتراضية في
+# app/src/config.ts هي `play` عمدًا (الخطأ في الاتجاه الآمن)، ولو تُركت هنا
+# لخرج ملف APK يقول لمن نزّله من موقعنا «افتح المتجر» — والتطبيق ليس فيه بعد،
+# فيصير التحديث مستحيلًا عليه.
+#
+# ونسخة المتجر تُبنى بسكربت آخر بقيمة `play`.
 
 echo "▶ البناء (يستغرق 5–15 دقيقة)…"
 cd "$APP_SRC/android"
@@ -189,6 +198,7 @@ sudo -u souq -E env HOME=/home/souq \
   JAVA_HOME="$JAVA_HOME" \
   EXPO_PUBLIC_API_URL="$API_URL" \
   EXPO_PUBLIC_APP_VERSION="$BUILD_VERSION" \
+  EXPO_PUBLIC_DISTRIBUTION=direct \
   ./gradlew assembleRelease --no-daemon -q
 
 APK_SRC="$APP_SRC/android/app/build/outputs/apk/release/app-release.apk"
