@@ -183,6 +183,9 @@ class PermissionSurfaceTests(BaseAPITest):
             "android.permission.CAMERA",
             "android.permission.RECORD_AUDIO",
             "android.permission.READ_MEDIA_IMAGES",
+            # تضيفها مكتبة React Native تلقائيًا لقائمة المطوّر، ولا يستعملها
+            # التطبيق. «العرض فوق التطبيقات الأخرى» صلاحية يلاحظها المراجع.
+            "android.permission.SYSTEM_ALERT_WINDOW",
         ):
             self.assertIn(permission, blocked, f"{permission} يجب أن تبقى محجوبة")
 
