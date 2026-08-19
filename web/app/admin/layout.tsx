@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { API_URL } from '@/lib/api';
 import { AdminProvider, Spinner, useAdmin, useApi } from '@/lib/admin';
 
 const LINKS = [
@@ -46,11 +47,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <header className="admin-header">
         <div className="admin-header-inner">
           <div className="row">
-            <span className="admin-mark">س</span>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 900, lineHeight: 1.2 }}>سوق الرقة</div>
-              <div style={{ fontSize: 10.5, opacity: 0.7, fontWeight: 600 }}>لوحة الإدارة</div>
-            </div>
+            <Brand />
           </div>
           <div className="grow" />
           <span className="txt-sm" style={{ opacity: 0.85, fontWeight: 700 }}>
@@ -67,6 +64,62 @@ function Shell({ children }: { children: React.ReactNode }) {
           <Sidebar pathname={pathname} role={user.role} />
         </aside>
         <main>{children}</main>
+      </div>
+    </>
+  );
+}
+
+
+/**
+ * هوية اللوحة — من الإعدادات لا من الكود.
+ *
+ * كان الاسم والحرف مكتوبين ثابتين هنا، فيغيّرهما الأدمن في «هوية التطبيق»
+ * ويرى التطبيق والصفحة التعريفية يتغيّران بينما لوحته هي وحدها لا تتغيّر —
+ * فيظنّ أن الحفظ لم ينجح.
+ *
+ * نقرأ من `/app-config` العام لا من مسار إداري: الترويسة تُرسم قبل اكتمال
+ * التحقّق من الجلسة، وطلبٌ يحتاج رمز دخول كان سيفشل في تلك اللحظة.
+ */
+function Brand() {
+  const [brand, setBrand] = useState<{ name: string; mark: string; logo: string | null } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    let alive = true;
+    fetch(`${API_URL}/app-config`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (alive && data?.brand) setBrand(data.brand);
+      })
+      .catch(() => {
+        /* الإعدادات غير متاحة — نبقى على النصّ الاحتياطي */
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const name = brand?.name || 'سوق الرقة';
+  const mark = brand?.mark || 'س';
+
+  return (
+    <>
+      {brand?.logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={brand.logo}
+          alt={name}
+          width={34}
+          height={34}
+          style={{ borderRadius: 10, objectFit: 'cover', background: '#fff' }}
+        />
+      ) : (
+        <span className="admin-mark">{mark}</span>
+      )}
+      <div>
+        <div style={{ fontSize: 15, fontWeight: 900, lineHeight: 1.2 }}>{name}</div>
+        <div style={{ fontSize: 10.5, opacity: 0.7, fontWeight: 600 }}>لوحة الإدارة</div>
       </div>
     </>
   );

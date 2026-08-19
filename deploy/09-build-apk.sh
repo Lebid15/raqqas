@@ -92,7 +92,9 @@ fi
 if [ -n "$ICON_PATH" ] && [ -f "$ICON_PATH" ]; then
   # الأيقونة المربّعة والأمامية للأيقونة التكيّفية — نفس الصورة تكفي للاثنتين
   for target in assets/icon.png assets/android-icon-foreground.png assets/favicon.png; do
-    python3 -c "
+    # بايثون البيئة الافتراضية لا بايثون النظام: Pillow مثبَّت هناك بوصفه
+    # اعتمادًا للخلفية، وليس مثبَّتًا على مستوى النظام إطلاقًا.
+    /srv/souq/venv/bin/python -c "
 from PIL import Image
 import sys
 image = Image.open(sys.argv[1]).convert('RGBA').resize((1024, 1024), Image.LANCZOS)
